@@ -1,14 +1,33 @@
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import engine_from_config, pool, create_engine
 from alembic import context
 from app.database.session import Base
 from app.core.config import settings
+import app.models
 
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+
+def _get_url():
+    if settings.DATABASE_URL.startswith("postgresql"):
+        try:
+            engine = create_engine(
+                settings.DATABASE_URL,
+                connect_args={"connect_timeout": 5, "sslmode": "require"},
+            )
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            return settings.DATABASE_URL
+        except Exception:
+            pass
+    return "sqlite:///ecocity.db"
+
+
+from sqlalchemy import text
+
+config.set_main_option("sqlalchemy.url", _get_url())
 target_metadata = Base.metadata
 
 

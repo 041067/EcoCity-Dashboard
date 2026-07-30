@@ -1,13 +1,35 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.health import router as health_router
+from fastapi.responses import JSONResponse
+from app.api.router import api_router
 from app.core.config import settings
+from app.logs.logger import logger
+from app.exceptions.database_exception import DatabaseException
+from app.exceptions.external_api_exception import ExternalApiException
 
 app = FastAPI(
     title="EcoCity Dashboard API",
     description="API do EcoCity Dashboard - Monitoramento Ambiental Inteligente",
-    version="0.1.0",
+    version="0.2.0",
 )
+
+
+@app.exception_handler(DatabaseException)
+async def database_exception_handler(request: Request, exc: DatabaseException):
+    logger.error("Database error: %s", exc)
+    return JSONResponse(status_code=500, content={"detail": str(exc)})
+
+
+@app.exception_handler(ExternalApiException)
+async def external_api_exception_handler(request: Request, exc: ExternalApiException):
+    logger.error("External API error: %s", exc)
+    return JSONResponse(status_code=502, content={"detail": str(exc)})
+
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    logger.error("Unhandled error: %s", exc)
+    return JSONResponse(status_code=500, content={"detail": str(exc)})
 
 origins = [
     "http://localhost:5173",
@@ -29,4 +51,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(health_router, prefix="/api")
+app.include_router(api_router)
+
+logger.info("EcoCity Dashboard API started")
