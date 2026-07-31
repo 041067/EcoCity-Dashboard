@@ -34,7 +34,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 origins = [
     "http://localhost:5173",
     "http://localhost:3000",
-    "https://ecocity-dashboard.vercel.app",
+    "https://eco-city-dashboard.vercel.app",
 ]
 
 if settings.ENVIRONMENT == "development":
