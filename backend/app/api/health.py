@@ -59,7 +59,7 @@ def health_external_services():
         )
         response.raise_for_status()
         services["open_meteo"] = {"status": "ok"}
-    except Exception as e:
-        services["open_meteo"] = {"status": "error", "detail": str(e)}
+    except Exception:
+        services["open_meteo"] = {"status": "error", "detail": "Service check failed"}
 
     return {"status": "ok", "services": services}
