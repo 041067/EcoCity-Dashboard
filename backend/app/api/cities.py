@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+
 from app.database.session import get_db
 from app.repositories.city_repository import CityRepository
 from app.schemas.city import CityResponse

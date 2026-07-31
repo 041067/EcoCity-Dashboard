@@ -1,6 +1,5 @@
 import logging
 import sys
-from typing import Any
 
 
 def setup_logger(name: str = "ecocity") -> logging.Logger:
@@ -17,7 +16,6 @@ def setup_logger(name: str = "ecocity") -> logging.Logger:
 
 class CustomFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
-        msg = super().format(record)
         level = record.levelname
         return f"[{level}] {record.name}: {record.getMessage()}"
 

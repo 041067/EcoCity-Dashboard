@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
-from app.models.ai_report import AIReport
+
 from app.exceptions.database_exception import DatabaseException
 from app.logs.logger import logger
+from app.models.ai_report import AIReport
 
 
 class AIReportRepository:
