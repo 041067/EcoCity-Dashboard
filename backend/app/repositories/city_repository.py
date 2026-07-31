@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
-from app.models.city import City
+
 from app.exceptions.database_exception import DatabaseException
 from app.logs.logger import logger
+from app.models.city import City
 
 
 class CityRepository:

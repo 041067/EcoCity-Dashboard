@@ -1,7 +1,7 @@
 from app.clients.groq_client import GroqClient
+from app.logs.logger import logger
 from app.repositories.ai_report_repository import AIReportRepository
 from app.repositories.reading_repository import ReadingRepository
-from app.logs.logger import logger
 
 
 class AIService:

@@ -1,8 +1,7 @@
 from app.clients.open_meteo_client import OpenMeteoClient
+from app.logs.logger import logger
 from app.repositories.city_repository import CityRepository
 from app.repositories.reading_repository import ReadingRepository
-from app.logs.logger import logger
-
 
 MONITORED_CITIES = [
     {"name": "São Paulo", "state": "SP", "latitude": -23.5505, "longitude": -46.6333},

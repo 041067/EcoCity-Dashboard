@@ -1,8 +1,9 @@
-from pathlib import Path
 import sys
 from logging.config import fileConfig
+from pathlib import Path
 
 from sqlalchemy import engine_from_config, pool
+
 from alembic import context
 
 # -------------------------------------------------------------------
@@ -14,9 +15,9 @@ sys.path.insert(0, str(BASE_DIR))
 # -------------------------------------------------------------------
 # Imports da aplicação
 # -------------------------------------------------------------------
-from app.database.session import Base
-from app.core.config import settings
 import app.models
+from app.core.config import settings
+from app.database.session import Base
 
 # -------------------------------------------------------------------
 # Configuração do Alembic
