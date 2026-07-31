@@ -15,12 +15,20 @@ def _create_engine():
             with engine.connect() as conn:
                 conn.execute(text("SELECT 1"))
             return engine
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"PostgreSQL connection failed: {e}")
+            print("Hint: If testing connection, use a valid PostgreSQL URL like 'postgresql://postgres:password@host:5432/database'")
+            print("For local testing, consider using SQLite: sqlite:///ecocity.db")
+            return None
 
-    fallback_url = "sqlite:///ecocity.db"
-    engine = create_engine(fallback_url, connect_args={"check_same_thread": False})
-    return engine
+    # For development/testing, allow SQLite even if DATABASE_URL is not set
+    try:
+        fallback_url = "sqlite:///ecocity.db"
+        engine = create_engine(fallback_url, connect_args={"check_same_thread": False})
+        print(f"Warning: Using SQLite fallback for local development: {fallback_url}")
+        return engine
+    except Exception as e:
+        raise ValueError(f"Failed to create fallback SQLite engine: {e}")
 
 
 engine = _create_engine()

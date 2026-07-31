@@ -1,51 +1,73 @@
+from pathlib import Path
+import sys
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool, create_engine
+
+from sqlalchemy import engine_from_config, pool
 from alembic import context
+
+# -------------------------------------------------------------------
+# Adiciona a pasta "backend" ao PYTHONPATH
+# -------------------------------------------------------------------
+BASE_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(BASE_DIR))
+
+# -------------------------------------------------------------------
+# Imports da aplicação
+# -------------------------------------------------------------------
 from app.database.session import Base
 from app.core.config import settings
 import app.models
 
+# -------------------------------------------------------------------
+# Configuração do Alembic
+# -------------------------------------------------------------------
 config = context.config
+
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+# Utiliza a mesma DATABASE_URL da aplicação
+config.set_main_option(
+    "sqlalchemy.url",
+    settings.DATABASE_URL
+)
 
-def _get_url():
-    if settings.DATABASE_URL.startswith("postgresql"):
-        try:
-            engine = create_engine(
-                settings.DATABASE_URL,
-                connect_args={"connect_timeout": 5, "sslmode": "require"},
-            )
-            with engine.connect() as conn:
-                conn.execute(text("SELECT 1"))
-            return settings.DATABASE_URL
-        except Exception:
-            pass
-    return "sqlite:///ecocity.db"
-
-
-from sqlalchemy import text
-
-config.set_main_option("sqlalchemy.url", _get_url())
 target_metadata = Base.metadata
 
 
-def run_migrations_offline():
+def run_migrations_offline() -> None:
+    """Executa migrations em modo offline."""
+
     url = config.get_main_option("sqlalchemy.url")
-    context.configure(url=url, target_metadata=target_metadata, literal_binds=True)
+
+    context.configure(
+        url=url,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        compare_type=True,
+    )
+
     with context.begin_transaction():
         context.run_migrations()
 
 
-def run_migrations_online():
+def run_migrations_online() -> None:
+    """Executa migrations em modo online."""
+
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
+
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            compare_type=True,
+        )
+
         with context.begin_transaction():
             context.run_migrations()
 
