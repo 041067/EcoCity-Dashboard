@@ -1,3 +1,5 @@
+import logging
+
 import httpx
 from fastapi import APIRouter, Depends
 from sqlalchemy import text
@@ -7,6 +9,7 @@ from app.core.config import settings
 from app.database.session import get_db
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("/health")
@@ -28,8 +31,13 @@ def health_database(db: Session = Depends(get_db)):
     try:
         db.execute(text("SELECT 1"))
         return {"status": "ok", "database": "connected"}
-    except Exception as e:
-        return {"status": "error", "database": "disconnected", "detail": str(e)}
+    except Exception:
+        logger.exception("Database health check failed")
+        return {
+            "status": "error",
+            "database": "disconnected",
+            "detail": "Unable to verify database connectivity.",
+        }
 
 
 @router.get("/health/external-services")
