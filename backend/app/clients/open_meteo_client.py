@@ -1,4 +1,5 @@
 import httpx
+
 from app.core.config import settings
 from app.exceptions.external_api_exception import ExternalApiException
 from app.logs.logger import logger

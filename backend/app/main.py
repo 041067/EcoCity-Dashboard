@@ -1,12 +1,13 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from app.api.router import api_router
+
 from app.api.health import router as health_router
+from app.api.router import api_router
 from app.core.config import settings
-from app.logs.logger import logger
 from app.exceptions.database_exception import DatabaseException
 from app.exceptions.external_api_exception import ExternalApiException
+from app.logs.logger import logger
 
 app = FastAPI(
     title="EcoCity Dashboard API",
