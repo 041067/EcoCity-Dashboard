@@ -15,4 +15,5 @@ class SensorReading(Base):
     ozone = Column(Float, nullable=False)
     carbon_monoxide = Column(Float, nullable=False)
     wind_speed = Column(Float, nullable=False)
+    uv_index = Column(Float, nullable=False, default=0.0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

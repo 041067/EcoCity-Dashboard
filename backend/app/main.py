@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -8,11 +10,22 @@ from app.core.config import settings
 from app.exceptions.database_exception import DatabaseException
 from app.exceptions.external_api_exception import ExternalApiException
 from app.logs.logger import logger
+from app.scheduler.collector import collector
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Starting EcoCity scheduler")
+    collector.start()
+    yield
+    collector.shutdown()
+
 
 app = FastAPI(
     title="EcoCity Dashboard API",
     description="API do EcoCity Dashboard - Monitoramento Ambiental Inteligente",
-    version="0.2.0",
+    version="0.3.0",
+    lifespan=lifespan,
 )
 
 

@@ -13,7 +13,8 @@ class ReadingRepository:
 
     def create(self, city_id: int, temperature: float, humidity: float,
                pm25: float, pm10: float, ozone: float,
-               carbon_monoxide: float, wind_speed: float) -> SensorReading:
+               carbon_monoxide: float, wind_speed: float,
+               uv_index: float = 0.0) -> SensorReading:
         try:
             reading = SensorReading(
                 city_id=city_id,
@@ -24,6 +25,7 @@ class ReadingRepository:
                 ozone=ozone,
                 carbon_monoxide=carbon_monoxide,
                 wind_speed=wind_speed,
+                uv_index=uv_index,
             )
             self.db.add(reading)
             self.db.commit()

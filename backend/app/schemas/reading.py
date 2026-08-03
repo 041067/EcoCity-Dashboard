@@ -14,6 +14,8 @@ class ReadingResponse(BaseModel):
     ozone: float
     carbon_monoxide: float
     wind_speed: float
+    uv_index: float = 0.0
+    aqi: int | None = None
     created_at: datetime | None = None
 
     model_config = {"from_attributes": True}
@@ -30,4 +32,6 @@ class CollectResponse(BaseModel):
     ozone: float
     carbon_monoxide: float
     wind_speed: float
+    uv_index: float = 0.0
+    aqi: int | None = None
     created_at: str | None = None

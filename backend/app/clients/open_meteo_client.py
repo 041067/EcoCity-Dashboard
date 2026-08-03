@@ -13,7 +13,7 @@ class OpenMeteoClient:
         params = {
             "latitude": latitude,
             "longitude": longitude,
-            "current": "temperature_2m,relative_humidity_2m,wind_speed_10m",
+            "current": "temperature_2m,relative_humidity_2m,wind_speed_10m,uv_index",
             "timezone": "auto",
         }
         try:
