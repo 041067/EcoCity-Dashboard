@@ -2,6 +2,7 @@ from app.clients.open_meteo_client import OpenMeteoClient
 from app.logs.logger import logger
 from app.repositories.city_repository import CityRepository
 from app.repositories.reading_repository import ReadingRepository
+from app.utils.air_quality import compute_aqi
 
 MONITORED_CITIES = [
     {"name": "São Paulo", "state": "SP", "latitude": -23.5505, "longitude": -46.6333},
@@ -52,6 +53,7 @@ class WeatherService:
             ozone=air.get("ozone", 0.0),
             carbon_monoxide=air.get("carbon_monoxide", 0.0),
             wind_speed=weather.get("wind_speed_10m", 0.0),
+            uv_index=weather.get("uv_index", 0.0),
         )
 
         logger.info("Data collected for %s (reading_id=%s)", city.name, reading.id)
@@ -66,5 +68,7 @@ class WeatherService:
             "ozone": reading.ozone,
             "carbon_monoxide": reading.carbon_monoxide,
             "wind_speed": reading.wind_speed,
+            "uv_index": reading.uv_index,
+            "aqi": compute_aqi(reading.pm25),
             "created_at": reading.created_at.isoformat() if reading.created_at else None,
         }

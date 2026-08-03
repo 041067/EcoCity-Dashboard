@@ -8,8 +8,27 @@ from app.repositories.city_repository import CityRepository
 from app.repositories.reading_repository import ReadingRepository
 from app.schemas.reading import CollectResponse, ReadingResponse
 from app.services.weather_service import WeatherService
+from app.utils.air_quality import compute_aqi
 
 router = APIRouter(prefix="/readings", tags=["Readings"])
+
+
+def _to_response(r, city_name: str | None) -> ReadingResponse:
+    return ReadingResponse(
+        id=r.id,
+        city_id=r.city_id,
+        city_name=city_name,
+        temperature=r.temperature,
+        humidity=r.humidity,
+        pm25=r.pm25,
+        pm10=r.pm10,
+        ozone=r.ozone,
+        carbon_monoxide=r.carbon_monoxide,
+        wind_speed=r.wind_speed,
+        uv_index=r.uv_index,
+        aqi=compute_aqi(r.pm25),
+        created_at=r.created_at,
+    )
 
 
 @router.get("/latest", response_model=list[ReadingResponse])
@@ -21,19 +40,7 @@ def get_latest_readings(db: Session = Depends(get_db)):
     result = []
     for r in readings:
         city = city_repo.get_by_id(r.city_id)
-        result.append(ReadingResponse(
-            id=r.id,
-            city_id=r.city_id,
-            city_name=city.name if city else None,
-            temperature=r.temperature,
-            humidity=r.humidity,
-            pm25=r.pm25,
-            pm10=r.pm10,
-            ozone=r.ozone,
-            carbon_monoxide=r.carbon_monoxide,
-            wind_speed=r.wind_speed,
-            created_at=r.created_at,
-        ))
+        result.append(_to_response(r, city.name if city else None))
     return result
 
 
@@ -59,19 +66,7 @@ def get_reading_history(
     result = []
     for r in readings:
         c = city_repo.get_by_id(r.city_id)
-        result.append(ReadingResponse(
-            id=r.id,
-            city_id=r.city_id,
-            city_name=c.name if c else None,
-            temperature=r.temperature,
-            humidity=r.humidity,
-            pm25=r.pm25,
-            pm10=r.pm10,
-            ozone=r.ozone,
-            carbon_monoxide=r.carbon_monoxide,
-            wind_speed=r.wind_speed,
-            created_at=r.created_at,
-        ))
+        result.append(_to_response(r, c.name if c else None))
     return result
 
 
