@@ -1,5 +1,6 @@
-import { Marker } from 'react-leaflet';
-import { City } from '../../types';
+import { Marker, Popup } from 'react-leaflet';
+import type { City } from '../../types';
+import { scoreIcon } from './markerUtils';
 
 interface CityMarkerProps {
   city: City;
@@ -7,26 +8,23 @@ interface CityMarkerProps {
   onSelect: () => void;
 }
 
-function CityMarker({ city, isSelected, onSelect }: CityMarkerProps) {
-  const getMarkerColor = (city: City): string => {
-    if (!city) return '#gray';
-    
-    if (city.score !== undefined) {
-      if (city.score >= 70) return '#10b981'; // verde
-      if (city.score >= 40) return '#fbbf24'; // amarelo
-      return '#ef4444'; // vermelho
-    }
-    
-    return '#3b82f6'; // azul padrão
-  };
-
+export function CityMarker({ city, isSelected, onSelect }: CityMarkerProps) {
   return (
     <Marker
       position={[city.latitude, city.longitude]}
-      color={getMarkerColor(city)}
-      eventHandlers={{ click: () => onSelect() }}
-    />
+      icon={scoreIcon(city)}
+      zIndexOffset={isSelected ? 1000 : 0}
+      eventHandlers={{ click: onSelect }}
+    >
+      <Popup>
+        <div className="text-center">
+          <h3 className="font-bold text-lg">{city.name}</h3>
+          <p className="text-sm text-gray-600">{city.state}</p>
+          {city.score !== undefined && (
+            <p className="text-sm font-semibold">Eco Score: {Math.round(city.score)}</p>
+          )}
+        </div>
+      </Popup>
+    </Marker>
   );
 }
-
-export default CityMarker;
