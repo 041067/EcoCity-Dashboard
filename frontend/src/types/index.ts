@@ -9,48 +9,39 @@ export interface City {
   state: string;
   latitude: number;
   longitude: number;
-  temperature?: number;
-  humidity?: number;
-  windSpeed?: number;
-  pm25?: number;
-  pm10?: number;
-  ozone?: number;
-  carbonMonoxide?: number;
-  uvIndex?: number;
-  aqi?: number;
   score?: number;
-  createdAt?: string;
+  created_at?: string;
 }
 
-export interface ReadingResponse {
+export interface Reading {
   id: number;
-  cityId: number;
-  cityName?: string;
+  city_id: number;
+  city_name?: string;
   temperature: number;
   humidity: number;
   pm25: number;
   pm10: number;
   ozone: number;
-  carbonMonoxide: number;
-  windSpeed: number;
-  uvIndex?: number;
+  carbon_monoxide: number;
+  wind_speed: number;
+  uv_index: number;
   aqi?: number;
-  createdAt?: string;
+  created_at?: string;
 }
 
-export interface AlertResponse {
+export interface Alert {
   id: number;
-  cityId: number;
-  cityName?: string;
-  severity: 'green' | 'yellow' | 'orange' | 'red' | 'purple';
+  city_id: number;
+  city_name?: string;
+  severity: string;
   title: string;
   description: string;
-  createdAt?: string;
+  created_at?: string;
 }
 
-export interface ScoreResponse {
-  cityId: number;
-  cityName?: string;
+export interface Score {
+  city_id: number;
+  city_name?: string;
   state?: string;
   score: number;
   classification: string;
@@ -58,16 +49,16 @@ export interface ScoreResponse {
   aqi: number;
   temperature: number;
   humidity: number;
-  windSpeed: number;
-  uvIndex: number;
-  createdAt?: string;
+  wind_speed: number;
+  uv_index: number;
+  created_at?: string;
 }
 
-export interface AIReportResponse {
+export interface AIReport {
   city: string;
   summary: string;
   recommendation: string;
-  createdAt?: string;
+  created_at?: string;
 }
 
 export interface ChatRequest {
