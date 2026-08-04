@@ -1,5 +1,5 @@
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -8,9 +8,7 @@ class Settings(BaseSettings):
     OPEN_METEO_URL: str = "https://api.open-meteo.com/v1"
     ENVIRONMENT: str = "development"
 
-    class Config:
-        env_file = ".env"
-        extra = "allow"
+    model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
 
 settings = Settings()
