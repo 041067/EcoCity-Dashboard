@@ -22,7 +22,6 @@ class Collector:
         self.scheduler = BackgroundScheduler(timezone="America/Sao_Paulo")
 
     def collect_job(self) -> None:
-        started = datetime.now().isoformat()
         try:
             with SessionLocal() as db:
                 city_repo = CityRepository(db)

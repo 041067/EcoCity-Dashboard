@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { City, Score } from '../../types';
 import { getHistory } from '../../services/api';
@@ -19,16 +18,9 @@ function scoreTone(score?: number): 'emerald' | 'amber' | 'red' | 'default' {
 }
 
 export function DashboardCharts({ city, score }: DashboardChartsProps) {
-  const [enabled, setEnabled] = useState(false);
-
-  useEffect(() => {
-    setEnabled(true);
-  }, []);
-
   const history = useQuery({
     queryKey: ['history', city.id],
     queryFn: () => getHistory(city.name),
-    enabled,
   });
 
   const latest = history.data?.[0];

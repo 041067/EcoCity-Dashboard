@@ -10,8 +10,15 @@ import type {
   Score,
 } from '../types';
 
+function resolveApiBase(): string {
+  const configured = import.meta.env.VITE_API_URL;
+  if (!configured) return '/api/v1';
+  const trimmed = configured.replace(/\/+$/, '');
+  return trimmed.endsWith('/api/v1') ? trimmed : `${trimmed}/api/v1`;
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api/v1',
+  baseURL: resolveApiBase(),
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

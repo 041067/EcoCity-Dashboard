@@ -65,7 +65,7 @@ def guide_step_by_step():
     print("=" * 70)
     print("""
 The current .env file contains a PostgreSQL URL:
-  DATABASE_URL=postgresql://postgres:q34U+whwwbF!QBU@db.qbghywxepuujcwxbvklj.supabase.co:5432/postgres
+  DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres
 
 ⚠️  The hostname 'db.qbghywxepuujcwxbvklj.supabase.co' may not be resolvable in your environment.
 

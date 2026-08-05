@@ -50,6 +50,7 @@ origins = [
     "http://localhost:5173",
     "http://localhost:3000",
     "https://eco-city-dashboard.vercel.app",
+    "https://ecocity-dashboard.onrender.com",
 ]
 
 if settings.ENVIRONMENT == "development":

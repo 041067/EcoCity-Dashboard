@@ -1,5 +1,6 @@
 from datetime import date, datetime
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.exceptions.database_exception import DatabaseException
@@ -43,11 +44,13 @@ class ReadingRepository:
                 self.db.query(
                     SensorReading.city_id,
                     SensorReading.id,
+                    func.row_number()
+                    .over(partition_by=SensorReading.city_id, order_by=SensorReading.created_at.desc())
+                    .label("rn"),
                 )
-                .distinct(SensorReading.city_id)
-                .order_by(SensorReading.city_id, SensorReading.created_at.desc())
                 .subquery()
             )
+            sub = self.db.query(sub.c.city_id, sub.c.id).filter(sub.c.rn == 1).subquery()
             return self.db.query(SensorReading).join(
                 sub, SensorReading.id == sub.c.id
             ).all()

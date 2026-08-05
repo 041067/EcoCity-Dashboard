@@ -6,6 +6,9 @@ from app.logs.logger import logger
 
 
 class OpenMeteoClient:
+    WEATHER_URL = f"{settings.OPEN_METEO_URL}/forecast"
+    AIR_QUALITY_URL = "https://air-quality-api.open-meteo.com/v1/air-quality"
+
     def __init__(self) -> None:
         self.base_url = settings.OPEN_METEO_URL
 
@@ -17,7 +20,7 @@ class OpenMeteoClient:
             "timezone": "auto",
         }
         try:
-            response = httpx.get(f"{self.base_url}/forecast", params=params, timeout=15)
+            response = httpx.get(self.WEATHER_URL, params=params, timeout=15)
             response.raise_for_status()
             data = response.json()
             logger.info("Weather data fetched for lat=%s lon=%s", latitude, longitude)
@@ -37,7 +40,7 @@ class OpenMeteoClient:
             "timezone": "auto",
         }
         try:
-            response = httpx.get(f"{self.base_url}/air-quality", params=params, timeout=15)
+            response = httpx.get(self.AIR_QUALITY_URL, params=params, timeout=15)
             response.raise_for_status()
             data = response.json()
             logger.info("Air quality data fetched for lat=%s lon=%s", latitude, longitude)
