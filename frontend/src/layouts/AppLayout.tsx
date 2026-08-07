@@ -2,7 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { useTheme } from '../contexts/useTheme';
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Dashboard', icon: '📊' },
+  { to: '/dashboard', label: 'Dashboard', icon: '📊' },
   { to: '/mapa', label: 'Mapa', icon: '🗺️' },
   { to: '/relatorios', label: 'Relatórios IA', icon: '🤖' },
   { to: '/alertas', label: 'Alertas', icon: '🔔' },
@@ -27,7 +27,7 @@ export function AppLayout() {
               <NavLink
                 key={item.to}
                 to={item.to}
-                end={item.to === '/'}
+                end={item.to === '/dashboard'}
                 className={({ isActive }) =>
                   `rounded-lg px-3 py-2 text-sm font-medium transition ${
                     isActive
@@ -56,8 +56,8 @@ export function AppLayout() {
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
-              to={item.to}
-              end={item.to === '/'}
+                to={item.to}
+                end={item.to === '/dashboard'}
               className={({ isActive }) =>
                 `whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium ${
                   isActive

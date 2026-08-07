@@ -5,6 +5,7 @@ import { ThemeProvider } from './contexts/ThemeProvider';
 import { AppLayout } from './layouts/AppLayout';
 import { LoadingScreen } from './components/LoadingScreen';
 
+const Landing = lazy(() => import('./pages/Landing').then((m) => ({ default: m.Landing })));
 const Dashboard = lazy(() =>
   import('./pages/Dashboard').then((m) => ({ default: m.Dashboard })),
 );
@@ -34,8 +35,9 @@ export function AppRoutes() {
   return (
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
+        <Route path="/" element={<Landing />} />
         <Route element={<AppLayout />}>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/mapa" element={<MapPage />} />
           <Route path="/relatorios" element={<ReportsPage />} />
           <Route path="/alertas" element={<AlertsPage />} />
