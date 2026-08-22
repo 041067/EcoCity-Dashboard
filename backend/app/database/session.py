@@ -21,14 +21,13 @@ def _create_engine():
             print("For local testing, consider using SQLite: sqlite:///ecocity.db")
             return None
 
-    # For development/testing, allow SQLite even if DATABASE_URL is not set
-    try:
-        fallback_url = "sqlite:///ecocity.db"
-        engine = create_engine(fallback_url, connect_args={"check_same_thread": False})
-        print(f"Warning: Using SQLite fallback for local development: {fallback_url}")
-        return engine
-    except Exception as e:
-        raise ValueError(f"Failed to create fallback SQLite engine: {e}")
+    if settings.DATABASE_URL.startswith("sqlite"):
+        try:
+            return create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False})
+        except Exception as e:
+            raise ValueError(f"Failed to create SQLite engine: {e}") from e
+
+    raise ValueError("DATABASE_URL must use a PostgreSQL or SQLite connection string")
 
 
 engine = _create_engine()

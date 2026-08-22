@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { useTheme } from '../contexts/useTheme';
 
 const NAV_ITEMS = [
+  { to: '/esg', label: 'ESG', icon: '🌱' },
   { to: '/dashboard', label: 'Dashboard', icon: '📊' },
   { to: '/mapa', label: 'Mapa', icon: '🗺️' },
   { to: '/relatorios', label: 'Relatórios IA', icon: '🤖' },

@@ -159,6 +159,45 @@ npm test                          # Vitest
 npm run build                     # build de produção (tsc + vite)
 ```
 
+## Sprint 6 — ESG Foundation
+
+O EcoCity ESG adiciona contexto organizacional ao monitoramento ambiental existente, sem remover ou migrar os dados de `cities`, `sensor_readings`, `alerts` ou `ai_reports`.
+
+```
+Organization
+├── Sites ──> City ──> Environmental Data
+├── Stakeholders
+├── ESG Profile
+└── ESG Topics (E / S / G)
+```
+
+### API ESG (`/api/v1/esg`)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| POST / GET | `/organizations` | Cria e lista organizações |
+| GET / PUT | `/organizations/{id}` | Consulta e atualiza uma organização |
+| POST / GET | `/organizations/{id}/sites` | Unidades operacionais com vínculo opcional a City |
+| GET / PUT | `/organizations/{id}/profile` | Perfil ESG da organização |
+| POST / GET | `/organizations/{id}/stakeholders` | Stakeholders e níveis de influência/impacto |
+| GET | `/topics` | Catálogo ESG ativo (E/S/G) |
+| POST / GET | `/organizations/{id}/topics` | Temas ESG acompanhados pela organização |
+| GET | `/organizations/{id}/overview` | Totais de sites, stakeholders e temas por pilar |
+
+O catálogo inicial contém temas ambientais, sociais e de governança. Os endpoints aparecem automaticamente no Swagger em `/docs`.
+
+### Migração e seed de desenvolvimento
+
+```bash
+cd backend
+alembic upgrade head
+python -m app.database.seed_esg
+```
+
+O seed é idempotente e cria a organização demonstrativa **Eco Industries S.A.**, três unidades vinculadas a cidades monitoradas, seis stakeholders e temas ESG selecionados. Não é executado automaticamente em produção.
+
+O frontend fornece `/onboarding` para iniciar a estrutura ESG e `/esg` para o primeiro ESG Overview. Não há cálculo de score ou matriz de materialidade nesta Sprint.
+
 ## Deploy
 
 ### Banco (Supabase)

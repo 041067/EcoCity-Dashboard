@@ -5,9 +5,16 @@ import type {
   ChatRequest,
   ChatResponse,
   City,
+  ESGProfile,
+  ESGTopic,
   HealthResponse,
+  Organization,
+  OrganizationESGTopic,
+  OrganizationOverview,
   Reading,
   Score,
+  Site,
+  Stakeholder,
 } from '../types';
 
 function resolveApiBase(): string {
@@ -82,6 +89,77 @@ export async function sendChatMessage(request: ChatRequest): Promise<ChatRespons
 
 export async function collectReadings(): Promise<unknown[]> {
   const { data } = await api.post<unknown[]>('/readings/collect');
+  return data;
+}
+
+type OrganizationPayload = Omit<Organization, 'id' | 'created_at' | 'updated_at'>;
+type SitePayload = Omit<Site, 'id' | 'organization_id' | 'city' | 'created_at' | 'updated_at'>;
+type ProfilePayload = Omit<ESGProfile, 'id' | 'organization_id' | 'created_at' | 'updated_at'>;
+type StakeholderPayload = Omit<Stakeholder, 'id' | 'organization_id' | 'created_at' | 'updated_at'>;
+
+export async function createOrganization(payload: OrganizationPayload): Promise<Organization> {
+  const { data } = await api.post<Organization>('/esg/organizations', payload);
+  return data;
+}
+
+export async function getOrganizations(): Promise<Organization[]> {
+  const { data } = await api.get<Organization[]>('/esg/organizations');
+  return data;
+}
+
+export async function getOrganization(organizationId: number): Promise<Organization> {
+  const { data } = await api.get<Organization>(`/esg/organizations/${organizationId}`);
+  return data;
+}
+
+export async function createSite(organizationId: number, payload: SitePayload): Promise<Site> {
+  const { data } = await api.post<Site>(`/esg/organizations/${organizationId}/sites`, payload);
+  return data;
+}
+
+export async function getSites(organizationId: number): Promise<Site[]> {
+  const { data } = await api.get<Site[]>(`/esg/organizations/${organizationId}/sites`);
+  return data;
+}
+
+export async function updateESGProfile(organizationId: number, payload: ProfilePayload): Promise<ESGProfile> {
+  const { data } = await api.put<ESGProfile>(`/esg/organizations/${organizationId}/profile`, payload);
+  return data;
+}
+
+export async function createStakeholder(
+  organizationId: number,
+  payload: StakeholderPayload,
+): Promise<Stakeholder> {
+  const { data } = await api.post<Stakeholder>(`/esg/organizations/${organizationId}/stakeholders`, payload);
+  return data;
+}
+
+export async function getStakeholders(organizationId: number): Promise<Stakeholder[]> {
+  const { data } = await api.get<Stakeholder[]>(`/esg/organizations/${organizationId}/stakeholders`);
+  return data;
+}
+
+export async function getESGTopics(): Promise<ESGTopic[]> {
+  const { data } = await api.get<ESGTopic[]>('/esg/topics');
+  return data;
+}
+
+export async function saveOrganizationTopic(
+  organizationId: number,
+  payload: Pick<OrganizationESGTopic, 'topic_id' | 'enabled' | 'priority' | 'notes'>,
+): Promise<OrganizationESGTopic> {
+  const { data } = await api.post<OrganizationESGTopic>(`/esg/organizations/${organizationId}/topics`, payload);
+  return data;
+}
+
+export async function getOrganizationTopics(organizationId: number): Promise<OrganizationESGTopic[]> {
+  const { data } = await api.get<OrganizationESGTopic[]>(`/esg/organizations/${organizationId}/topics`);
+  return data;
+}
+
+export async function getOrganizationOverview(organizationId: number): Promise<OrganizationOverview> {
+  const { data } = await api.get<OrganizationOverview>(`/esg/organizations/${organizationId}/overview`);
   return data;
 }
 

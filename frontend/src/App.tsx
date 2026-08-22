@@ -20,6 +20,10 @@ const ComparePage = lazy(() =>
   import('./pages/Compare').then((m) => ({ default: m.ComparePage })),
 );
 const ChatPage = lazy(() => import('./pages/Chat').then((m) => ({ default: m.ChatPage })));
+const OnboardingPage = lazy(() =>
+  import('./pages/Onboarding').then((m) => ({ default: m.OnboardingPage })),
+);
+const ESGPage = lazy(() => import('./pages/ESG').then((m) => ({ default: m.ESGPage })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,6 +40,7 @@ export function AppRoutes() {
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/mapa" element={<MapPage />} />
@@ -43,6 +48,7 @@ export function AppRoutes() {
           <Route path="/alertas" element={<AlertsPage />} />
           <Route path="/comparar" element={<ComparePage />} />
           <Route path="/chat" element={<ChatPage />} />
+          <Route path="/esg" element={<ESGPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
