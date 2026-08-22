@@ -22,29 +22,29 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="EcoCity Dashboard API",
-    description="API do EcoCity Dashboard - Monitoramento Ambiental Inteligente",
-    version="0.3.0",
+    title="EcoCity ESG API",
+    description="API do EcoCity ESG - monitoramento ambiental e estrutura organizacional ESG.",
+    version="0.6.0",
     lifespan=lifespan,
 )
 
 
 @app.exception_handler(DatabaseException)
 async def database_exception_handler(request: Request, exc: DatabaseException):
-    logger.error("Database error: %s", exc)
-    return JSONResponse(status_code=500, content={"detail": str(exc)})
+    logger.exception("Database error while processing %s", request.url.path)
+    return JSONResponse(status_code=500, content={"detail": "Erro interno ao processar a solicita\u00e7\u00e3o"})
 
 
 @app.exception_handler(ExternalApiException)
 async def external_api_exception_handler(request: Request, exc: ExternalApiException):
-    logger.error("External API error: %s", exc)
-    return JSONResponse(status_code=502, content={"detail": str(exc)})
+    logger.exception("External API error while processing %s", request.url.path)
+    return JSONResponse(status_code=502, content={"detail": "Servi\u00e7o externo indispon\u00edvel"})
 
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
-    logger.error("Unhandled error: %s", exc)
-    return JSONResponse(status_code=500, content={"detail": str(exc)})
+    logger.exception("Unhandled error while processing %s", request.url.path)
+    return JSONResponse(status_code=500, content={"detail": "Erro interno inesperado"})
 
 origins = [
     "http://localhost:5173",
@@ -63,8 +63,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 app.include_router(health_router)
