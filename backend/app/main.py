@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="EcoCity ESG API",
     description="API do EcoCity ESG - monitoramento ambiental e estrutura organizacional ESG.",
-    version="0.6.0",
+    version="0.7.0",
     lifespan=lifespan,
 )
 

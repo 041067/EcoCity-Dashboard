@@ -8,6 +8,10 @@ import type {
   ESGProfile,
   ESGTopic,
   HealthResponse,
+  MaterialityAssessment,
+  MaterialityAssessmentCreate,
+  MaterialityExplanation,
+  MaterialityMatrix,
   Organization,
   OrganizationESGTopic,
   OrganizationOverview,
@@ -15,6 +19,8 @@ import type {
   Score,
   Site,
   Stakeholder,
+  StakeholderAssessment,
+  StakeholderAssessmentInput,
 } from '../types';
 
 function resolveApiBase(): string {
@@ -160,6 +166,65 @@ export async function getOrganizationTopics(organizationId: number): Promise<Org
 
 export async function getOrganizationOverview(organizationId: number): Promise<OrganizationOverview> {
   const { data } = await api.get<OrganizationOverview>(`/esg/organizations/${organizationId}/overview`);
+  return data;
+}
+
+export async function createMaterialityAssessment(
+  organizationId: number,
+  payload: MaterialityAssessmentCreate,
+): Promise<MaterialityAssessment> {
+  const { data } = await api.post<MaterialityAssessment>(`/esg/organizations/${organizationId}/materiality`, payload);
+  return data;
+}
+
+export async function getMaterialityAssessments(
+  organizationId: number,
+  reportingYear?: number,
+): Promise<MaterialityAssessment[]> {
+  const { data } = await api.get<MaterialityAssessment[]>(`/esg/organizations/${organizationId}/materiality`, {
+    params: reportingYear ? { reporting_year: reportingYear } : undefined,
+  });
+  return data;
+}
+
+export async function getMaterialityMatrix(
+  organizationId: number,
+  reportingYear?: number,
+): Promise<MaterialityMatrix> {
+  const { data } = await api.get<MaterialityMatrix>(`/esg/organizations/${organizationId}/materiality/matrix`, {
+    params: reportingYear ? { reporting_year: reportingYear } : undefined,
+  });
+  return data;
+}
+
+export async function getMaterialityPriorities(
+  organizationId: number,
+  reportingYear?: number,
+): Promise<MaterialityAssessment[]> {
+  const { data } = await api.get<MaterialityAssessment[]>(`/esg/organizations/${organizationId}/materiality/priorities`, {
+    params: reportingYear ? { reporting_year: reportingYear } : undefined,
+  });
+  return data;
+}
+
+export async function getMaterialityExplanation(
+  organizationId: number,
+  assessmentId: number,
+): Promise<MaterialityExplanation> {
+  const { data } = await api.get<MaterialityExplanation>(
+    `/esg/organizations/${organizationId}/materiality/${assessmentId}/explanation`,
+  );
+  return data;
+}
+
+export async function saveMaterialityStakeholderAssessment(
+  assessmentId: number,
+  payload: StakeholderAssessmentInput,
+): Promise<StakeholderAssessment> {
+  const { data } = await api.post<StakeholderAssessment>(
+    `/esg/materiality/${assessmentId}/stakeholders`,
+    payload,
+  );
   return data;
 }
 

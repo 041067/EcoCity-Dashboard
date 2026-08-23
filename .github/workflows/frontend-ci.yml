@@ -41,5 +41,8 @@ jobs:
       - name: Testes (Vitest)
         run: npm test
 
+      - name: Auditoria de dependências de produção
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Build (TypeScript + Vite)
         run: npm run build

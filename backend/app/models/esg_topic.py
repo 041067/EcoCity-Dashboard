@@ -18,3 +18,4 @@ class ESGTopic(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     organization_links = relationship("OrganizationESGTopic", back_populates="topic")
+    materiality_assessments = relationship("MaterialityAssessment", back_populates="topic")

@@ -5,6 +5,10 @@ import {
   getESGTopics,
   getLatestReadings,
   getLatestReport,
+  getMaterialityExplanation,
+  getMaterialityAssessments,
+  getMaterialityMatrix,
+  getMaterialityPriorities,
   getOrganization,
   getOrganizationOverview,
   getOrganizations,
@@ -100,5 +104,37 @@ export function useOrganizationStakeholders(organizationId?: number) {
     queryKey: ['esg', 'stakeholders', organizationId],
     queryFn: () => getStakeholders(organizationId!),
     enabled: Boolean(organizationId),
+  });
+}
+
+export function useMaterialityAssessments(organizationId?: number, reportingYear?: number) {
+  return useQuery({
+    queryKey: ['esg', 'materiality', organizationId, reportingYear ?? 'all'],
+    queryFn: () => getMaterialityAssessments(organizationId!, reportingYear),
+    enabled: Boolean(organizationId),
+  });
+}
+
+export function useMaterialityMatrix(organizationId?: number, reportingYear?: number) {
+  return useQuery({
+    queryKey: ['esg', 'materiality-matrix', organizationId, reportingYear ?? 'latest'],
+    queryFn: () => getMaterialityMatrix(organizationId!, reportingYear),
+    enabled: Boolean(organizationId),
+  });
+}
+
+export function useMaterialityPriorities(organizationId?: number, reportingYear?: number) {
+  return useQuery({
+    queryKey: ['esg', 'materiality-priorities', organizationId, reportingYear ?? 'latest'],
+    queryFn: () => getMaterialityPriorities(organizationId!, reportingYear),
+    enabled: Boolean(organizationId),
+  });
+}
+
+export function useMaterialityExplanation(organizationId?: number, assessmentId?: number) {
+  return useQuery({
+    queryKey: ['esg', 'materiality-explanation', organizationId, assessmentId],
+    queryFn: () => getMaterialityExplanation(organizationId!, assessmentId!),
+    enabled: Boolean(organizationId && assessmentId),
   });
 }
