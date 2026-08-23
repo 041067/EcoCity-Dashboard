@@ -24,6 +24,9 @@ const OnboardingPage = lazy(() =>
   import('./pages/Onboarding').then((m) => ({ default: m.OnboardingPage })),
 );
 const ESGPage = lazy(() => import('./pages/ESG').then((m) => ({ default: m.ESGPage })));
+const MaterialityPage = lazy(() =>
+  import('./pages/Materiality').then((m) => ({ default: m.MaterialityPage })),
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,6 +52,7 @@ export function AppRoutes() {
           <Route path="/comparar" element={<ComparePage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/esg" element={<ESGPage />} />
+          <Route path="/esg/materiality" element={<MaterialityPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

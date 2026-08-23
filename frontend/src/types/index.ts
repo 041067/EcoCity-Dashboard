@@ -170,3 +170,110 @@ export interface OrganizationOverview {
   social_topics: number;
   governance_topics: number;
 }
+
+export type MaterialityStatus = 'draft' | 'in_review' | 'completed';
+export type PriorityLevel = 'low' | 'medium' | 'high' | 'critical';
+export type EvidenceType = 'manual' | 'internal_data' | 'external_data' | 'document' | 'stakeholder';
+
+export interface ImpactAssessmentInput {
+  severity: number;
+  scope: number;
+  likelihood: number;
+  remediability: number;
+}
+
+export interface FinancialAssessmentInput {
+  revenue_impact: number;
+  cost_impact: number;
+  asset_impact: number;
+  financing_impact: number;
+  regulatory_impact: number;
+}
+
+export interface StakeholderAssessmentInput {
+  stakeholder_id: number;
+  relevance: number;
+  concern_level: number;
+  influence: number;
+  comment?: string | null;
+}
+
+export interface AssessmentEvidenceInput {
+  evidence_type: EvidenceType;
+  source: string;
+  description: string;
+  reference?: string | null;
+}
+
+export interface MaterialityAssessmentCreate {
+  topic_id: number;
+  reporting_year: number;
+  impact?: ImpactAssessmentInput;
+  financial?: FinancialAssessmentInput;
+  stakeholders?: StakeholderAssessmentInput[];
+  evidences?: AssessmentEvidenceInput[];
+  status: MaterialityStatus;
+}
+
+export interface ImpactAssessment extends ImpactAssessmentInput {
+  id: number;
+  materiality_assessment_id: number;
+}
+
+export interface FinancialAssessment extends FinancialAssessmentInput {
+  id: number;
+  materiality_assessment_id: number;
+}
+
+export interface StakeholderAssessment extends StakeholderAssessmentInput {
+  id: number;
+  materiality_assessment_id: number;
+  stakeholder: Stakeholder;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface AssessmentEvidence extends AssessmentEvidenceInput {
+  id: number;
+  materiality_assessment_id: number;
+  created_at?: string;
+}
+
+export interface MaterialityAssessment {
+  id: number;
+  organization_id: number;
+  topic_id: number;
+  reporting_year: number;
+  impact_score: number | null;
+  financial_score: number | null;
+  stakeholder_score: number | null;
+  materiality_score: number | null;
+  priority_level: PriorityLevel | null;
+  status: MaterialityStatus;
+  topic: ESGTopic;
+  impact_assessment: ImpactAssessment | null;
+  financial_assessment: FinancialAssessment | null;
+  stakeholder_assessments: StakeholderAssessment[];
+  evidences: AssessmentEvidence[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface MaterialityMatrix {
+  reporting_year: number | null;
+  assessments: MaterialityAssessment[];
+}
+
+export interface MaterialityExplanation {
+  topic: string;
+  reporting_year: number;
+  status: MaterialityStatus;
+  materiality_score: number | null;
+  priority: PriorityLevel | null;
+  components: { impact: number | null; financial: number | null; stakeholder: number | null };
+  impact_assessment: ImpactAssessment | null;
+  financial_assessment: FinancialAssessment | null;
+  stakeholder_assessments: StakeholderAssessment[];
+  evidences: AssessmentEvidence[];
+  weights: { impact: number; financial: number; stakeholder: number };
+}

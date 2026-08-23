@@ -196,7 +196,36 @@ python -m app.database.seed_esg
 
 O seed é idempotente e cria a organização demonstrativa **Eco Industries S.A.**, três unidades vinculadas a cidades monitoradas, seis stakeholders e temas ESG selecionados. Não é executado automaticamente em produção.
 
-O frontend fornece `/onboarding` para iniciar a estrutura ESG e `/esg` para o primeiro ESG Overview. Não há cálculo de score ou matriz de materialidade nesta Sprint.
+O frontend fornece `/onboarding` para iniciar a estrutura ESG e `/esg` para o primeiro ESG Overview.
+
+## Sprint 7 — Materiality Engine
+
+A Sprint 7 transforma os temas ESG em avaliações anuais, com trilha de auditoria e cálculo determinístico no backend:
+
+```
+Organization → ESG topic + stakeholders → assessment inputs
+                                      ↓
+             impact + financial + stakeholder materiality
+                                      ↓
+                  score, priority, evidence and matrix
+```
+
+O frontend fornece o wizard em `/esg/materiality`, a matriz interativa de dupla materialidade e o ranking executivo. A matriz usa `Y = impacto`, `X = financeiro` e tamanho da bolha = relevância consolidada dos stakeholders.
+
+O cálculo, escalas, pesos configuráveis, limites, classificação e garantias de histórico estão documentados em [docs/materiality-engine.md](docs/materiality-engine.md).
+
+### API de materialidade (`/api/v1/esg`)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| POST / GET | `/organizations/{id}/materiality` | Cria ou lista avaliações anuais |
+| GET / PUT | `/organizations/{id}/materiality/{assessment_id}` | Consulta ou atualiza uma avaliação não concluída |
+| POST / GET | `/materiality/{assessment_id}/stakeholders` | Registra ou lista avaliações de stakeholders |
+| GET | `/organizations/{id}/materiality/matrix` | Matriz de dupla materialidade para o ano solicitado ou mais recente |
+| GET | `/organizations/{id}/materiality/priorities` | Ranking executivo para o ano solicitado ou mais recente |
+| GET | `/organizations/{id}/materiality/{assessment_id}/explanation` | Decompõe score, critérios, evidências e pesos |
+
+Avaliações concluídas são imutáveis. Para preservar o histórico, uma organização cria uma nova avaliação para cada tema e ano de reporte.
 
 ## Deploy
 
@@ -267,6 +296,8 @@ O pipeline em `.github/workflows/` executa automaticamente:
 | 3 — Visualização | Dashboard com gráficos, filtros e períodos, mapa interativo | ✅ Concluída |
 | 4 — Inteligência e Alertas | Integração Groq, relatórios IA, sistema de alertas, comparador, chat | ✅ Concluída |
 | 5 — Experiência | Páginas completas com tema escuro, React Query, hooks tipados, CI/CD | ✅ Concluída |
+| 6 — Fundação ESG | Organizações, unidades, stakeholders, temas e onboarding ESG | ✅ Concluída |
+| 7 — Materiality Engine | Avaliação de impacto, financeiro e stakeholders, matriz e ranking | ✅ Concluída |
 
 ### Próximos passos
 - [ ] Autenticação de usuários

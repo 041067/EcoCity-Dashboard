@@ -36,3 +36,6 @@ class Organization(Base):
     esg_topic_links = relationship(
         "OrganizationESGTopic", back_populates="organization", cascade="all, delete-orphan"
     )
+    materiality_assessments = relationship(
+        "MaterialityAssessment", back_populates="organization", cascade="all, delete-orphan"
+    )

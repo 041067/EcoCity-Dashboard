@@ -29,3 +29,4 @@ class Stakeholder(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     organization = relationship("Organization", back_populates="stakeholders")
+    materiality_assessments = relationship("StakeholderAssessment", back_populates="stakeholder")

@@ -46,6 +46,9 @@ jobs:
       - name: Testes (pytest)
         run: pytest
 
+      - name: Auditoria de vulnerabilidades Python (pip-audit)
+        run: python -m pip_audit -r requirements.txt --strict
+
       - name: Validar migrations (Alembic offline)
         run: |
           alembic upgrade head --sql > /dev/null
