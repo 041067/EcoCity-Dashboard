@@ -62,7 +62,7 @@ def _validate_stakeholders(
     for stakeholder in stakeholders:
         if not repo.stakeholder_belongs_to_organization(organization_id, stakeholder.stakeholder_id):
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Stakeholder n\u00e3o pertence \u00e0 organiza\u00e7\u00e3o",
             )
 
@@ -201,7 +201,7 @@ def create_materiality_assessment(
     repository = MaterialityRepository(db)
     if not repository.topic_is_enabled(organization_id, payload.topic_id):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="O tema ESG deve estar ativo para a organiza\u00e7\u00e3o antes da avalia\u00e7\u00e3o",
         )
     if repository.exists_for_topic_and_year(organization_id, payload.topic_id, payload.reporting_year):
@@ -222,7 +222,7 @@ def create_materiality_assessment(
             status=payload.status,
         )
     except IncompleteAssessmentError as exc:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
 
 
 @router.get(
@@ -336,7 +336,7 @@ def update_materiality_assessment(
     except ImmutableAssessmentError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     except IncompleteAssessmentError as exc:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
 
 
 @router.post(
@@ -357,7 +357,7 @@ def save_materiality_stakeholder_assessment(
         assessment.organization_id, payload.stakeholder_id
     ):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Stakeholder n\u00e3o pertence \u00e0 organiza\u00e7\u00e3o",
         )
     try:
