@@ -222,6 +222,7 @@ class ProviderService:
                 unit=item.definition.unit,
                 description=item.definition.description,
                 source_type=item.definition.source_type,
+                direction=item.definition.direction,
             )
             confidence = round((item.quality_score * 0.7) + (item.relevance_score * 0.3), 2)
             value = self.values.create(

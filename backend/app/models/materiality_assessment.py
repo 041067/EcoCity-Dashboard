@@ -83,3 +83,4 @@ class MaterialityAssessment(Base):
     external_evidences = relationship(
         "MaterialityEvidence", back_populates="materiality_assessment", cascade="all, delete-orphan"
     )
+    gaps = relationship("ESGGap", back_populates="assessment")

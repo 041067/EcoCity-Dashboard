@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { to: '/esg', label: 'ESG', icon: 'leaf' },
   { to: '/esg/intelligence', label: 'Inteligência', icon: 'activity' },
   { to: '/esg/materiality', label: 'Materialidade', icon: 'target' },
+  { to: '/esg/actions', label: 'Ações ESG', icon: 'check' },
   { to: '/dashboard', label: 'Dashboard', icon: 'chart' },
   { to: '/mapa', label: 'Mapa', icon: 'map' },
   { to: '/relatorios', label: 'Relatórios IA', icon: 'bot' },

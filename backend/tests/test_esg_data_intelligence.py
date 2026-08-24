@@ -146,7 +146,7 @@ def test_esg_intelligence_api_exposes_values_evidence_and_provider_registry(clie
     assert organization_values.status_code == 200
     assert len(organization_values.json()) == 3
 
-    evidence = client.get(f"/api/v1/esg/materiality/{assessment.id}/evidence")
+    evidence = client.get(f"/api/v1/esg/organizations/{organization.id}/materiality/{assessment.id}/evidence")
     assert evidence.status_code == 200
     assert evidence.json()[0]["indicator_value"]["indicator"]["code"] == "ENERGY_SOLAR_POTENTIAL"
 

@@ -19,3 +19,8 @@ class ESGTopic(Base):
 
     organization_links = relationship("OrganizationESGTopic", back_populates="topic")
     materiality_assessments = relationship("MaterialityAssessment", back_populates="topic")
+    targets = relationship("ESGTarget", back_populates="topic")
+    gaps = relationship("ESGGap", back_populates="topic")
+    risks = relationship("ESGRisk", back_populates="topic")
+    opportunities = relationship("ESGOpportunity", back_populates="topic")
+    action_plans = relationship("ActionPlan", back_populates="topic")

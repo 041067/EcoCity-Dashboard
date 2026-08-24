@@ -13,6 +13,7 @@ class ESGIndicatorResponse(BaseModel):
     unit: str
     description: str | None = None
     source_type: str
+    direction: Literal["higher_is_better", "lower_is_better"]
     active: bool
 
     model_config = ConfigDict(from_attributes=True)

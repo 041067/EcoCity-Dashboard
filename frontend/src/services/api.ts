@@ -1,12 +1,19 @@
 import axios from 'axios';
 import type {
   AIReport,
+  ActionPlan,
+  AnalysisRun,
   Alert,
   ChatRequest,
   ChatResponse,
   City,
   ESGProfile,
   ESGIndicator,
+  ESGGap,
+  ESGOpportunity,
+  ESGPriority,
+  ESGRisk,
+  ESGTarget,
   ESGTopic,
   HealthResponse,
   MaterialityAssessment,
@@ -277,8 +284,43 @@ export async function syncSiteIntelligence(siteId: number): Promise<SiteSyncResp
   return data;
 }
 
-export async function getMaterialityExternalEvidence(assessmentId: number): Promise<MaterialityExternalEvidence[]> {
-  const { data } = await api.get<MaterialityExternalEvidence[]>(`/esg/materiality/${assessmentId}/evidence`);
+export async function getMaterialityExternalEvidence(organizationId: number, assessmentId: number): Promise<MaterialityExternalEvidence[]> {
+  const { data } = await api.get<MaterialityExternalEvidence[]>(`/esg/organizations/${organizationId}/materiality/${assessmentId}/evidence`);
+  return data;
+}
+
+export async function getTargets(organizationId: number): Promise<ESGTarget[]> {
+  const { data } = await api.get<ESGTarget[]>(`/esg/organizations/${organizationId}/targets`);
+  return data;
+}
+
+export async function getGaps(organizationId: number): Promise<ESGGap[]> {
+  const { data } = await api.get<ESGGap[]>(`/esg/organizations/${organizationId}/gaps`);
+  return data;
+}
+
+export async function getRisks(organizationId: number): Promise<ESGRisk[]> {
+  const { data } = await api.get<ESGRisk[]>(`/esg/organizations/${organizationId}/risks`);
+  return data;
+}
+
+export async function getOpportunities(organizationId: number): Promise<ESGOpportunity[]> {
+  const { data } = await api.get<ESGOpportunity[]>(`/esg/organizations/${organizationId}/opportunities`);
+  return data;
+}
+
+export async function getActionPlans(organizationId: number): Promise<ActionPlan[]> {
+  const { data } = await api.get<ActionPlan[]>(`/esg/organizations/${organizationId}/actions`);
+  return data;
+}
+
+export async function getPriorities(organizationId: number): Promise<ESGPriority[]> {
+  const { data } = await api.get<ESGPriority[]>(`/esg/organizations/${organizationId}/priorities`);
+  return data;
+}
+
+export async function runESGAnalysis(organizationId: number): Promise<AnalysisRun> {
+  const { data } = await api.post<AnalysisRun>(`/esg/organizations/${organizationId}/analysis/run`);
   return data;
 }
 

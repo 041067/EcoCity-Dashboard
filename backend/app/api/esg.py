@@ -4,9 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
+from app.models.esg_indicator import ESGIndicator
 from app.repositories.city_repository import CityRepository
 from app.repositories.esg_profile_repository import ESGProfileRepository
 from app.repositories.esg_topic_repository import ESGTopicRepository
+from app.repositories.gap_action_repository import GapActionRepository
 from app.repositories.indicator_repository import IndicatorRepository, IndicatorValueRepository
 from app.repositories.materiality_repository import ImmutableAssessmentError, MaterialityRepository
 from app.repositories.organization_repository import OrganizationRepository
@@ -34,6 +36,24 @@ from app.schemas.esg_intelligence import (
     ProviderStatusResponse,
     SiteSyncResponse,
 )
+from app.schemas.gap_action import (
+    ActionPlanCreate,
+    ActionPlanResponse,
+    ActionPlanUpdate,
+    ActionTaskCreate,
+    ActionTaskResponse,
+    ActionTaskUpdate,
+    AnalysisRunResponse,
+    AuditEntryResponse,
+    GapResponse,
+    OpportunityResponse,
+    PriorityResponse,
+    RiskMatrixCell,
+    RiskResponse,
+    TargetCreate,
+    TargetResponse,
+    TargetUpdate,
+)
 from app.schemas.materiality import (
     MaterialityAssessmentCreate,
     MaterialityAssessmentResponse,
@@ -47,6 +67,7 @@ from app.schemas.materiality import (
 )
 from app.services.esg_data.evidence_service import EvidenceService
 from app.services.esg_data.provider_service import ProviderRegistry, ProviderService
+from app.services.gap_action_service import AnalysisService, GapService, PriorityService
 from app.services.materiality_service import IncompleteAssessmentError, MaterialityService
 
 router = APIRouter(prefix="/esg", tags=["ESG"])
@@ -416,11 +437,14 @@ def get_materiality_explanation(
 
 
 @router.get(
-    "/materiality/{assessment_id}/evidence",
+    "/organizations/{organization_id}/materiality/{assessment_id}/evidence",
     response_model=list[MaterialityExternalEvidenceResponse],
 )
-def get_materiality_external_evidence(assessment_id: int, db: Session = Depends(get_db)):
-    assessment = MaterialityRepository(db).get_any(assessment_id)
+def get_materiality_external_evidence(
+    organization_id: int, assessment_id: int, db: Session = Depends(get_db)
+):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    assessment = _assessment_or_404(MaterialityRepository(db), organization_id, assessment_id)
     if assessment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Avaliação não encontrada")
     evidences = EvidenceService(db).list_for_assessment(assessment_id)
@@ -513,3 +537,371 @@ def list_materiality_stakeholder_assessments(assessment_id: int, db: Session = D
     if assessment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Avalia\u00e7\u00e3o n\u00e3o encontrada")
     return assessment.stakeholder_assessments
+
+
+def _action_topic_or_422(db: Session, organization_id: int, topic_id: int):
+    repository = MaterialityRepository(db)
+    if not repository.topic_is_enabled(organization_id, topic_id):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="ESG topic must be active for the organization",
+        )
+    topic = ESGTopicRepository(db).get_topic(topic_id)
+    if topic is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ESG topic not found")
+    return topic
+
+
+def _site_for_organization_or_422(db: Session, organization_id: int, site_id: int | None) -> None:
+    if site_id is None:
+        return
+    site = _site_or_404(SiteRepository(db), site_id)
+    if site.organization_id != organization_id:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Site does not belong to the organization",
+        )
+
+
+def _indicator_or_404(db: Session, indicator_id: int) -> ESGIndicator:
+    indicator = (
+        db.query(ESGIndicator)
+        .filter(ESGIndicator.id == indicator_id, ESGIndicator.active.is_(True))
+        .first()
+    )
+    if indicator is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Indicator not found")
+    return indicator
+
+
+def _target_response(target, repository: GapActionRepository) -> TargetResponse:
+    value = repository.latest_value(target.organization_id, target.indicator_id, target.site_id)
+    current = float(value.value) if value else None
+    progress, tracking_status = GapService.tracking(
+        float(target.baseline_value),
+        target.baseline_year,
+        float(target.target_value),
+        target.target_year,
+        current,
+        target.indicator.direction,
+    )
+    return TargetResponse(
+        id=target.id,
+        organization_id=target.organization_id,
+        site_id=target.site_id,
+        topic_id=target.topic_id,
+        indicator_id=target.indicator_id,
+        name=target.name,
+        baseline_value=target.baseline_value,
+        baseline_year=target.baseline_year,
+        target_value=target.target_value,
+        target_year=target.target_year,
+        unit=target.unit,
+        status=target.status,
+        description=target.description,
+        direction=target.indicator.direction,
+        current_value=current,
+        progress_percentage=progress,
+        tracking_status=tracking_status,
+        topic=target.topic,
+        indicator=target.indicator,
+        created_at=target.created_at,
+        updated_at=target.updated_at,
+    )
+
+
+@router.get("/organizations/{organization_id}/targets", response_model=list[TargetResponse])
+def list_targets(organization_id: int, db: Session = Depends(get_db)):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    repository = GapActionRepository(db)
+    return [_target_response(target, repository) for target in repository.list_targets(organization_id)]
+
+
+@router.post(
+    "/organizations/{organization_id}/targets",
+    response_model=TargetResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_target(organization_id: int, payload: TargetCreate, db: Session = Depends(get_db)):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    _action_topic_or_422(db, organization_id, payload.topic_id)
+    _site_for_organization_or_422(db, organization_id, payload.site_id)
+    indicator = _indicator_or_404(db, payload.indicator_id)
+    repository = GapActionRepository(db)
+    try:
+        data = payload.model_dump()
+        data["unit"] = indicator.unit
+        target = repository.create_target(organization_id, data)
+        repository.audit(
+            organization_id,
+            "target",
+            target.id,
+            "created",
+            new_value={"name": target.name, "indicator_id": target.indicator_id},
+        )
+        db.commit()
+        refreshed = repository.get_target(organization_id, target.id)
+        assert refreshed is not None
+        return _target_response(refreshed, repository)
+    except Exception:
+        db.rollback()
+        raise
+
+
+@router.put("/organizations/{organization_id}/targets/{target_id}", response_model=TargetResponse)
+def update_target(
+    organization_id: int, target_id: int, payload: TargetUpdate, db: Session = Depends(get_db)
+):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    repository = GapActionRepository(db)
+    target = repository.get_target(organization_id, target_id)
+    if target is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Target not found")
+    changes = payload.model_dump(exclude_unset=True)
+    baseline_year = changes.get("baseline_year", target.baseline_year)
+    target_year = changes.get("target_year", target.target_year)
+    if target_year <= baseline_year:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="target_year must be after baseline_year",
+        )
+    old_value = {key: getattr(target, key) for key in changes}
+    try:
+        for field, value in changes.items():
+            setattr(target, field, value)
+        repository.audit(organization_id, "target", target.id, "updated", old_value, changes)
+        db.commit()
+        refreshed = repository.get_target(organization_id, target.id)
+        assert refreshed is not None
+        return _target_response(refreshed, repository)
+    except Exception:
+        db.rollback()
+        raise
+
+
+@router.get("/organizations/{organization_id}/gaps", response_model=list[GapResponse])
+def list_gaps(organization_id: int, db: Session = Depends(get_db)):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    return GapActionRepository(db).list_gaps(organization_id)
+
+
+@router.get("/organizations/{organization_id}/risks", response_model=list[RiskResponse])
+def list_risks(organization_id: int, db: Session = Depends(get_db)):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    return GapActionRepository(db).list_risks(organization_id)
+
+
+@router.get("/organizations/{organization_id}/risks/matrix", response_model=list[RiskMatrixCell])
+def get_risk_matrix(organization_id: int, db: Session = Depends(get_db)):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    risks = [risk for risk in GapActionRepository(db).list_risks(organization_id) if risk.status != "resolved"]
+    return [
+        {
+            "likelihood": likelihood,
+            "impact": impact,
+            "risks": [
+                risk for risk in risks if risk.likelihood == likelihood and risk.impact == impact
+            ],
+        }
+        for likelihood in range(1, 6)
+        for impact in range(1, 6)
+    ]
+
+
+@router.get("/organizations/{organization_id}/opportunities", response_model=list[OpportunityResponse])
+def list_opportunities(organization_id: int, db: Session = Depends(get_db)):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    return GapActionRepository(db).list_opportunities(organization_id)
+
+
+@router.post("/organizations/{organization_id}/analysis/run", response_model=AnalysisRunResponse)
+def run_analysis(organization_id: int, db: Session = Depends(get_db)):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    try:
+        result = AnalysisService(GapActionRepository(db)).run(organization_id)
+        db.commit()
+        return AnalysisRunResponse(
+            run_id=result.run_id,
+            organization_id=organization_id,
+            gaps_open=result.gaps_open,
+            risks_open=result.risks_open,
+            opportunities_open=result.opportunities_open,
+            created=result.created,
+            updated=result.updated,
+        )
+    except Exception:
+        db.rollback()
+        raise
+
+
+@router.get("/organizations/{organization_id}/priorities", response_model=list[PriorityResponse])
+def list_priorities(organization_id: int, db: Session = Depends(get_db)):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    return PriorityService.build(GapActionRepository(db), organization_id)
+
+
+def _validate_action_links(
+    repository: GapActionRepository, organization_id: int, payload: ActionPlanCreate
+) -> tuple[object | None, object | None, object | None]:
+    target = repository.get_target(organization_id, payload.target_id) if payload.target_id else None
+    gap = repository.get_gap(organization_id, payload.gap_id) if payload.gap_id else None
+    risk = repository.get_risk(organization_id, payload.risk_id) if payload.risk_id else None
+    if (payload.target_id and target is None) or (payload.gap_id and gap is None) or (
+        payload.risk_id and risk is None
+    ):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Linked ESG record not found")
+    return target, gap, risk
+
+
+@router.get("/organizations/{organization_id}/actions", response_model=list[ActionPlanResponse])
+def list_action_plans(organization_id: int, db: Session = Depends(get_db)):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    return GapActionRepository(db).list_actions(organization_id)
+
+
+@router.post(
+    "/organizations/{organization_id}/actions",
+    response_model=ActionPlanResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_action_plan(organization_id: int, payload: ActionPlanCreate, db: Session = Depends(get_db)):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    _action_topic_or_422(db, organization_id, payload.topic_id)
+    _site_for_organization_or_422(db, organization_id, payload.site_id)
+    repository = GapActionRepository(db)
+    target, gap, risk = _validate_action_links(repository, organization_id, payload)
+    if any(item is not None and item.topic_id != payload.topic_id for item in (target, gap, risk)):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Linked ESG record must belong to the selected topic",
+        )
+    priority = risk.risk_level if risk else gap.severity if gap else "medium"
+    try:
+        data = payload.model_dump()
+        data["priority"] = priority
+        action = repository.create_action(organization_id, data)
+        repository.audit(
+            organization_id,
+            "action_plan",
+            action.id,
+            "created",
+            new_value={"title": action.title, "priority": action.priority},
+        )
+        db.commit()
+        refreshed = repository.get_action(organization_id, action.id)
+        assert refreshed is not None
+        return refreshed
+    except Exception:
+        db.rollback()
+        raise
+
+
+@router.get("/organizations/{organization_id}/actions/{action_id}", response_model=ActionPlanResponse)
+def get_action_plan(organization_id: int, action_id: int, db: Session = Depends(get_db)):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    action = GapActionRepository(db).get_action(organization_id, action_id)
+    if action is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Action plan not found")
+    return action
+
+
+@router.put("/organizations/{organization_id}/actions/{action_id}", response_model=ActionPlanResponse)
+def update_action_plan(
+    organization_id: int, action_id: int, payload: ActionPlanUpdate, db: Session = Depends(get_db)
+):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    repository = GapActionRepository(db)
+    action = repository.get_action(organization_id, action_id)
+    if action is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Action plan not found")
+    changes = payload.model_dump(exclude_unset=True)
+    if changes.get("status") == "completed" and any(task.status != "completed" for task in action.tasks):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="All active tasks must be completed before closing the action plan",
+        )
+    old_value = {key: getattr(action, key) for key in changes}
+    try:
+        for field, value in changes.items():
+            setattr(action, field, value)
+        if changes.get("status") == "completed" and not action.tasks:
+            action.progress_percentage = 100.0
+            action.completed_at = datetime.now(UTC)
+        repository.audit(organization_id, "action_plan", action.id, "updated", old_value, changes)
+        db.commit()
+        refreshed = repository.get_action(organization_id, action.id)
+        assert refreshed is not None
+        return refreshed
+    except Exception:
+        db.rollback()
+        raise
+
+
+@router.post(
+    "/organizations/{organization_id}/actions/{action_id}/tasks",
+    response_model=ActionTaskResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_action_task(
+    organization_id: int, action_id: int, payload: ActionTaskCreate, db: Session = Depends(get_db)
+):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    repository = GapActionRepository(db)
+    action = repository.get_action(organization_id, action_id)
+    if action is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Action plan not found")
+    try:
+        task = repository.create_task(action, payload.model_dump())
+        repository.audit(
+            organization_id,
+            "action_task",
+            task.id,
+            "created",
+            new_value={"action_plan_id": action.id, "title": task.title},
+        )
+        db.commit()
+        return task
+    except Exception:
+        db.rollback()
+        raise
+
+
+@router.put(
+    "/organizations/{organization_id}/actions/{action_id}/tasks/{task_id}",
+    response_model=ActionTaskResponse,
+)
+def update_action_task(
+    organization_id: int,
+    action_id: int,
+    task_id: int,
+    payload: ActionTaskUpdate,
+    db: Session = Depends(get_db),
+):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    repository = GapActionRepository(db)
+    action = repository.get_action(organization_id, action_id)
+    task = repository.get_task(organization_id, action_id, task_id)
+    if action is None or task is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Action task not found")
+    changes = payload.model_dump(exclude_unset=True)
+    old_value = {key: getattr(task, key) for key in changes}
+    try:
+        for field, value in changes.items():
+            setattr(task, field, value)
+        if changes.get("status") == "completed":
+            task.completed_at = datetime.now(UTC)
+        elif "status" in changes:
+            task.completed_at = None
+        repository.refresh_action_progress(action)
+        repository.audit(organization_id, "action_task", task.id, "updated", old_value, changes)
+        db.commit()
+        return task
+    except Exception:
+        db.rollback()
+        raise
+
+
+@router.get("/organizations/{organization_id}/audit", response_model=list[AuditEntryResponse])
+def list_audit_entries(organization_id: int, db: Session = Depends(get_db)):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    return GapActionRepository(db).list_audit(organization_id)

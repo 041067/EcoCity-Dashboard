@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   getAlerts,
+  getActionPlans,
   getCities,
   getESGTopics,
+  getGaps,
   getMaterialityExternalEvidence,
   getLatestReadings,
   getLatestReport,
@@ -10,6 +12,7 @@ import {
   getMaterialityAssessments,
   getMaterialityMatrix,
   getMaterialityPriorities,
+  getOpportunities,
   getOrganization,
   getOrganizationOverview,
   getOrganizationIndicators,
@@ -22,7 +25,10 @@ import {
   getSiteEnergy,
   getSiteIndicators,
   getProviderStatuses,
+  getPriorities,
+  getRisks,
   getStakeholders,
+  getTargets,
 } from '../services/api';
 
 export function useCities() {
@@ -190,10 +196,34 @@ export function useSiteEnergy(siteId?: number) {
   });
 }
 
-export function useMaterialityExternalEvidence(assessmentId?: number) {
+export function useMaterialityExternalEvidence(organizationId?: number, assessmentId?: number) {
   return useQuery({
-    queryKey: ['esg', 'materiality-external-evidence', assessmentId],
-    queryFn: () => getMaterialityExternalEvidence(assessmentId!),
-    enabled: Boolean(assessmentId),
+    queryKey: ['esg', 'materiality-external-evidence', organizationId, assessmentId],
+    queryFn: () => getMaterialityExternalEvidence(organizationId!, assessmentId!),
+    enabled: Boolean(organizationId && assessmentId),
   });
+}
+
+export function useTargets(organizationId?: number) {
+  return useQuery({ queryKey: ['esg', 'targets', organizationId], queryFn: () => getTargets(organizationId!), enabled: Boolean(organizationId) });
+}
+
+export function useGaps(organizationId?: number) {
+  return useQuery({ queryKey: ['esg', 'gaps', organizationId], queryFn: () => getGaps(organizationId!), enabled: Boolean(organizationId) });
+}
+
+export function useRisks(organizationId?: number) {
+  return useQuery({ queryKey: ['esg', 'risks', organizationId], queryFn: () => getRisks(organizationId!), enabled: Boolean(organizationId) });
+}
+
+export function useOpportunities(organizationId?: number) {
+  return useQuery({ queryKey: ['esg', 'opportunities', organizationId], queryFn: () => getOpportunities(organizationId!), enabled: Boolean(organizationId) });
+}
+
+export function useActionPlans(organizationId?: number) {
+  return useQuery({ queryKey: ['esg', 'actions', organizationId], queryFn: () => getActionPlans(organizationId!), enabled: Boolean(organizationId) });
+}
+
+export function useESGPriorities(organizationId?: number) {
+  return useQuery({ queryKey: ['esg', 'priorities', organizationId], queryFn: () => getPriorities(organizationId!), enabled: Boolean(organizationId) });
 }

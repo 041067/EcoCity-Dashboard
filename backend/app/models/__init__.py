@@ -1,9 +1,16 @@
+from app.models.action_plan import ActionPlan
+from app.models.action_task import ActionTask
 from app.models.ai_report import AIReport
 from app.models.alert import Alert
 from app.models.assessment_evidence import AssessmentEvidence
+from app.models.audit_entry import AuditEntry
 from app.models.city import City
+from app.models.esg_gap import ESGGap
 from app.models.esg_indicator import ESGIndicator
+from app.models.esg_opportunity import ESGOpportunity
 from app.models.esg_profile import ESGProfile
+from app.models.esg_risk import ESGRisk
+from app.models.esg_target import ESGTarget
 from app.models.esg_topic import ESGTopic
 from app.models.financial_assessment import FinancialAssessment
 from app.models.impact_assessment import ImpactAssessment
@@ -23,11 +30,18 @@ __all__ = [
     "SensorReading",
     "AIReport",
     "Alert",
+    "ActionPlan",
+    "ActionTask",
+    "AuditEntry",
     "AssessmentEvidence",
     "Organization",
     "Site",
     "ESGProfile",
     "ESGIndicator",
+    "ESGGap",
+    "ESGOpportunity",
+    "ESGRisk",
+    "ESGTarget",
     "IndicatorValue",
     "Stakeholder",
     "ESGTopic",

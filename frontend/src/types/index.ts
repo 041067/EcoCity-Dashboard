@@ -287,6 +287,7 @@ export interface ESGIndicator {
   unit: string;
   description?: string | null;
   source_type: string;
+  direction: 'higher_is_better' | 'lower_is_better';
   active: boolean;
 }
 
@@ -343,4 +344,112 @@ export interface MaterialityExternalEvidence {
   relevance: string;
   linked_at?: string | null;
   indicator_value: IndicatorValue;
+}
+
+export type GapSeverity = 'low' | 'medium' | 'high' | 'critical';
+export type TargetStatus = 'planned' | 'active' | 'achieved' | 'cancelled';
+export type ActionStatus = 'planned' | 'in_progress' | 'blocked' | 'completed' | 'cancelled';
+
+export interface ESGTarget {
+  id: number;
+  organization_id: number;
+  site_id?: number | null;
+  topic_id: number;
+  indicator_id: number;
+  name: string;
+  baseline_value: number;
+  baseline_year: number;
+  target_value: number;
+  target_year: number;
+  unit: string;
+  status: TargetStatus;
+  direction: 'higher_is_better' | 'lower_is_better';
+  current_value?: number | null;
+  progress_percentage?: number | null;
+  tracking_status: 'on_track' | 'at_risk' | 'off_track' | 'achieved' | 'no_data';
+  topic: ESGTopic;
+  indicator: ESGIndicator;
+}
+
+export interface ESGGap {
+  id: number;
+  topic_id: number;
+  target_id?: number | null;
+  severity: GapSeverity;
+  status: 'open' | 'resolved';
+  current_value: number;
+  target_value: number;
+  gap_value: number;
+  unit: string;
+  description: string;
+  source: string;
+  topic: ESGTopic;
+  indicator: ESGIndicator;
+}
+
+export interface ESGRisk {
+  id: number;
+  topic_id: number;
+  likelihood: number;
+  impact: number;
+  risk_score: number;
+  risk_level: GapSeverity;
+  description: string;
+  source: string;
+  status: 'open' | 'mitigating' | 'resolved';
+  topic: ESGTopic;
+}
+
+export interface ESGOpportunity {
+  id: number;
+  topic_id: number;
+  opportunity_type: string;
+  opportunity_score: number;
+  priority: GapSeverity;
+  description: string;
+  evidence_reference?: string | null;
+  status: 'open' | 'in_progress' | 'realized' | 'dismissed';
+  topic: ESGTopic;
+}
+
+export interface ActionTask {
+  id: number;
+  action_plan_id: number;
+  title: string;
+  status: ActionStatus;
+  due_date?: string | null;
+}
+
+export interface ActionPlan {
+  id: number;
+  organization_id: number;
+  topic_id: number;
+  title: string;
+  priority: GapSeverity;
+  status: ActionStatus;
+  responsible_area?: string | null;
+  due_date?: string | null;
+  progress_percentage: number;
+  topic: ESGTopic;
+  tasks: ActionTask[];
+}
+
+export interface ESGPriority {
+  topic_id: number;
+  topic: ESGTopic;
+  score: number;
+  priority: GapSeverity;
+  breakdown: { materiality: number; gap_severity: number; risk: number; evidence_confidence: number };
+  evidence_ids: number[];
+  explanation: string;
+}
+
+export interface AnalysisRun {
+  run_id: string;
+  organization_id: number;
+  gaps_open: number;
+  risks_open: number;
+  opportunities_open: number;
+  created: Record<string, number>;
+  updated: Record<string, number>;
 }
