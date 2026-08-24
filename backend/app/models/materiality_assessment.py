@@ -80,3 +80,6 @@ class MaterialityAssessment(Base):
     evidences = relationship(
         "AssessmentEvidence", back_populates="materiality_assessment", cascade="all, delete-orphan"
     )
+    external_evidences = relationship(
+        "MaterialityEvidence", back_populates="materiality_assessment", cascade="all, delete-orphan"
+    )

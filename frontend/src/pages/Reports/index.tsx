@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCities, useLatestReport } from '../../hooks/useApiQueries';
 import { AsyncState } from '../../components/AsyncState';
+import { AppIcon } from '../../components/icons/AppIcon';
 import { generateReport } from '../../services/api';
 import type { AIReport } from '../../types';
 
@@ -52,7 +53,7 @@ export function ReportsPage() {
           onClick={() => mutation.mutate(city)}
           className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {mutation.isPending ? 'Gerando...' : '🤖 Gerar relatório'}
+          <span className="inline-flex items-center gap-2"><AppIcon name="bot" className="h-4 w-4" />{mutation.isPending ? 'Gerando...' : 'Gerar relatório'}</span>
         </button>
       </div>
 
@@ -92,7 +93,7 @@ export function ReportsPage() {
               <div className="space-y-4">
                 <div>
                   <h3 className="mb-1 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                    📋 Situação
+                    <span className="inline-flex items-center gap-1"><AppIcon name="document" className="h-4 w-4" />Situação</span>
                   </h3>
                   <p className="whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">
                     {report.summary}
@@ -101,7 +102,7 @@ export function ReportsPage() {
                 {report.recommendation && (
                   <div>
                     <h3 className="mb-1 text-sm font-semibold text-sky-600 dark:text-sky-400">
-                      🏛️ Recomendações
+                      <span className="inline-flex items-center gap-1"><AppIcon name="brain" className="h-4 w-4" />Recomendações</span>
                     </h3>
                     <p className="whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">
                       {report.recommendation}

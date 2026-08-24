@@ -3,6 +3,7 @@ import {
   getAlerts,
   getCities,
   getESGTopics,
+  getMaterialityExternalEvidence,
   getLatestReadings,
   getLatestReport,
   getMaterialityExplanation,
@@ -11,10 +12,16 @@ import {
   getMaterialityPriorities,
   getOrganization,
   getOrganizationOverview,
+  getOrganizationIndicators,
   getOrganizations,
   getOrganizationTopics,
   getScores,
   getSites,
+  getSiteAirQuality,
+  getSiteClimateRisk,
+  getSiteEnergy,
+  getSiteIndicators,
+  getProviderStatuses,
   getStakeholders,
 } from '../services/api';
 
@@ -136,5 +143,57 @@ export function useMaterialityExplanation(organizationId?: number, assessmentId?
     queryKey: ['esg', 'materiality-explanation', organizationId, assessmentId],
     queryFn: () => getMaterialityExplanation(organizationId!, assessmentId!),
     enabled: Boolean(organizationId && assessmentId),
+  });
+}
+
+export function useProviderStatuses() {
+  return useQuery({ queryKey: ['esg', 'providers'], queryFn: getProviderStatuses, refetchInterval: 60_000 });
+}
+
+export function useOrganizationIndicators(organizationId?: number, category?: string) {
+  return useQuery({
+    queryKey: ['esg', 'organization-indicators', organizationId, category ?? 'all'],
+    queryFn: () => getOrganizationIndicators(organizationId!, category),
+    enabled: Boolean(organizationId),
+  });
+}
+
+export function useSiteIndicators(siteId?: number, category?: string) {
+  return useQuery({
+    queryKey: ['esg', 'site-indicators', siteId, category ?? 'all'],
+    queryFn: () => getSiteIndicators(siteId!, category),
+    enabled: Boolean(siteId),
+  });
+}
+
+export function useSiteClimateRisk(siteId?: number) {
+  return useQuery({
+    queryKey: ['esg', 'site-climate-risk', siteId],
+    queryFn: () => getSiteClimateRisk(siteId!),
+    enabled: Boolean(siteId),
+  });
+}
+
+export function useSiteAirQuality(siteId?: number) {
+  return useQuery({
+    queryKey: ['esg', 'site-air', siteId],
+    queryFn: () => getSiteAirQuality(siteId!),
+    enabled: Boolean(siteId),
+  });
+}
+
+export function useSiteEnergy(siteId?: number) {
+  return useQuery({
+    queryKey: ['esg', 'site-energy', siteId],
+    queryFn: () => getSiteEnergy(siteId!),
+    enabled: Boolean(siteId),
+  });
+}
+
+export function useMaterialityExternalEvidence(assessmentId?: number) {
+  return useQuery({
+    queryKey: ['esg', 'materiality-external-evidence', assessmentId],
+    queryFn: () => getMaterialityExternalEvidence(assessmentId!),
+    enabled: Boolean(assessmentId),
   });
 }

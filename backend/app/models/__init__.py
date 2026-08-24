@@ -2,13 +2,17 @@ from app.models.ai_report import AIReport
 from app.models.alert import Alert
 from app.models.assessment_evidence import AssessmentEvidence
 from app.models.city import City
+from app.models.esg_indicator import ESGIndicator
 from app.models.esg_profile import ESGProfile
 from app.models.esg_topic import ESGTopic
 from app.models.financial_assessment import FinancialAssessment
 from app.models.impact_assessment import ImpactAssessment
+from app.models.indicator_value import IndicatorValue
 from app.models.materiality_assessment import MaterialityAssessment
+from app.models.materiality_evidence import MaterialityEvidence
 from app.models.organization import Organization
 from app.models.organization_esg_topic import OrganizationESGTopic
+from app.models.provider_sync_log import ProviderSyncLog
 from app.models.sensor_reading import SensorReading
 from app.models.site import Site
 from app.models.stakeholder import Stakeholder
@@ -23,11 +27,15 @@ __all__ = [
     "Organization",
     "Site",
     "ESGProfile",
+    "ESGIndicator",
+    "IndicatorValue",
     "Stakeholder",
     "ESGTopic",
     "FinancialAssessment",
     "ImpactAssessment",
     "MaterialityAssessment",
+    "MaterialityEvidence",
+    "ProviderSyncLog",
     "OrganizationESGTopic",
     "StakeholderAssessment",
 ]

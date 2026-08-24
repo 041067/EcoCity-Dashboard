@@ -7,6 +7,12 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///ecocity.db"
     GROQ_API_KEY: str | None = None
     OPEN_METEO_URL: str = "https://api.open-meteo.com/v1"
+    OPENAQ_API_KEY: str | None = None
+    OPENAQ_URL: str = "https://api.openaq.org/v3"
+    NASA_POWER_URL: str = "https://power.larc.nasa.gov/api"
+    INPE_API_URL: str | None = None
+    ANEEL_API_URL: str | None = None
+    ESG_PROVIDER_TIMEOUT_SECONDS: float = Field(default=10, ge=1, le=30)
     ENVIRONMENT: str = "development"
     MATERIALITY_IMPACT_WEIGHT: float = Field(default=0.40, ge=0, le=1)
     MATERIALITY_FINANCIAL_WEIGHT: float = Field(default=0.40, ge=0, le=1)

@@ -214,6 +214,12 @@ O frontend fornece o wizard em `/esg/materiality`, a matriz interativa de dupla 
 
 O cálculo, escalas, pesos configuráveis, limites, classificação e garantias de histórico estão documentados em [docs/materiality-engine.md](docs/materiality-engine.md).
 
+## Sprint 8 — ESG Data Intelligence
+
+A Sprint 8 adiciona uma camada de evidências externas entre fontes públicas e o Materiality Engine. Ela normaliza indicadores de clima, ar, água, energia e território, guarda proveniência completa no banco e relaciona observações aos temas materiais sem alterar automaticamente a pontuação da Sprint 7.
+
+O produto inclui a tela `/esg/intelligence`, atualização/freshness, cache no banco, status de providers, riscos climáticos determinísticos e evidências externas visíveis na matriz. Consulte [docs/esg-data-intelligence.md](docs/esg-data-intelligence.md) para a arquitetura, as frequências, a configuração dos providers e a referência das APIs.
+
 ### API de materialidade (`/api/v1/esg`)
 
 | Método | Rota | Descrição |
@@ -298,6 +304,7 @@ O pipeline em `.github/workflows/` executa automaticamente:
 | 5 — Experiência | Páginas completas com tema escuro, React Query, hooks tipados, CI/CD | ✅ Concluída |
 | 6 — Fundação ESG | Organizações, unidades, stakeholders, temas e onboarding ESG | ✅ Concluída |
 | 7 — Materiality Engine | Avaliação de impacto, financeiro e stakeholders, matriz e ranking | ✅ Concluída |
+| 8 — ESG Data Intelligence | Evidências externas, proveniência, providers e inteligência por unidade | ✅ Concluída |
 
 ### Próximos passos
 - [ ] Autenticação de usuários

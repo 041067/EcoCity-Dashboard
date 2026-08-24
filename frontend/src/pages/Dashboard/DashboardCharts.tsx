@@ -4,6 +4,7 @@ import { getHistory } from '../../services/api';
 import { AsyncState } from '../../components/AsyncState';
 import { HistoryChart } from '../../components/charts/HistoryChart';
 import { MetricCard } from '../../components/cards/MetricCard';
+import { AppIcon } from '../../components/icons/AppIcon';
 
 interface DashboardChartsProps {
   city: City;
@@ -32,39 +33,39 @@ export function DashboardCharts({ city, score }: DashboardChartsProps) {
           label="Temperatura"
           value={latest ? latest.temperature.toFixed(1) : '—'}
           unit="°C"
-          icon="🌡️"
+          icon={<AppIcon name="sun" className="h-5 w-5 text-red-600" />}
           tone="red"
         />
         <MetricCard
           label="Umidade"
           value={latest ? latest.humidity.toFixed(0) : '—'}
           unit="%"
-          icon="💧"
+          icon={<AppIcon name="water" className="h-5 w-5 text-sky-600" />}
           tone="sky"
         />
         <MetricCard
           label="Vento"
           value={latest ? latest.wind_speed.toFixed(0) : '—'}
           unit="km/h"
-          icon="🌬️"
+          icon={<AppIcon name="air" className="h-5 w-5 text-violet-600" />}
           tone="violet"
         />
         <MetricCard
           label="Índice UV"
           value={latest ? latest.uv_index.toFixed(1) : '—'}
-          icon="☀️"
+          icon={<AppIcon name="sun" className="h-5 w-5 text-amber-600" />}
           tone="amber"
         />
         <MetricCard
           label="AQI"
           value={latest?.aqi !== undefined ? String(latest.aqi) : '—'}
-          icon="🏭"
+          icon={<AppIcon name="activity" className="h-5 w-5 text-red-600" />}
           tone={latest?.aqi && latest.aqi > 100 ? 'red' : 'emerald'}
         />
         <MetricCard
           label="Eco Score"
           value={score ? String(Math.round(score.score)) : '—'}
-          icon={score?.symbol ?? '🌿'}
+          icon={<AppIcon name="leaf" className="h-5 w-5 text-emerald-600" />}
           tone={scoreTone(score?.score)}
         />
       </div>
@@ -76,7 +77,7 @@ export function DashboardCharts({ city, score }: DashboardChartsProps) {
               Eco Score — {score.city_name}
             </h3>
             <span className="rounded-full px-3 py-1 text-sm font-bold text-white bg-emerald-600">
-              {score.symbol} {score.classification} ({Math.round(score.score)})
+              {score.classification} ({Math.round(score.score)})
             </span>
           </div>
           <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">

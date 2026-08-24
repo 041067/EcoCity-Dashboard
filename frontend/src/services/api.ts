@@ -6,11 +6,13 @@ import type {
   ChatResponse,
   City,
   ESGProfile,
+  ESGIndicator,
   ESGTopic,
   HealthResponse,
   MaterialityAssessment,
   MaterialityAssessmentCreate,
   MaterialityExplanation,
+  MaterialityExternalEvidence,
   MaterialityMatrix,
   Organization,
   OrganizationESGTopic,
@@ -18,9 +20,12 @@ import type {
   Reading,
   Score,
   Site,
+  SiteSyncResponse,
   Stakeholder,
   StakeholderAssessment,
   StakeholderAssessmentInput,
+  IndicatorValue,
+  ProviderStatus,
 } from '../types';
 
 function resolveApiBase(): string {
@@ -225,6 +230,55 @@ export async function saveMaterialityStakeholderAssessment(
     `/esg/materiality/${assessmentId}/stakeholders`,
     payload,
   );
+  return data;
+}
+
+export async function getESGIndicators(category?: string): Promise<ESGIndicator[]> {
+  const { data } = await api.get<ESGIndicator[]>('/esg/indicators', { params: category ? { category } : undefined });
+  return data;
+}
+
+export async function getProviderStatuses(): Promise<ProviderStatus[]> {
+  const { data } = await api.get<ProviderStatus[]>('/esg/providers');
+  return data;
+}
+
+export async function getOrganizationIndicators(organizationId: number, category?: string): Promise<IndicatorValue[]> {
+  const { data } = await api.get<IndicatorValue[]>(`/esg/organizations/${organizationId}/indicators`, {
+    params: category ? { category } : undefined,
+  });
+  return data;
+}
+
+export async function getSiteIndicators(siteId: number, category?: string): Promise<IndicatorValue[]> {
+  const { data } = await api.get<IndicatorValue[]>(`/esg/sites/${siteId}/indicators`, {
+    params: category ? { category } : undefined,
+  });
+  return data;
+}
+
+export async function getSiteClimateRisk(siteId: number): Promise<IndicatorValue[]> {
+  const { data } = await api.get<IndicatorValue[]>(`/esg/sites/${siteId}/climate-risk`);
+  return data;
+}
+
+export async function getSiteAirQuality(siteId: number): Promise<IndicatorValue[]> {
+  const { data } = await api.get<IndicatorValue[]>(`/esg/sites/${siteId}/air-quality`);
+  return data;
+}
+
+export async function getSiteEnergy(siteId: number): Promise<IndicatorValue[]> {
+  const { data } = await api.get<IndicatorValue[]>(`/esg/sites/${siteId}/energy`);
+  return data;
+}
+
+export async function syncSiteIntelligence(siteId: number): Promise<SiteSyncResponse> {
+  const { data } = await api.post<SiteSyncResponse>(`/esg/sites/${siteId}/sync`);
+  return data;
+}
+
+export async function getMaterialityExternalEvidence(assessmentId: number): Promise<MaterialityExternalEvidence[]> {
+  const { data } = await api.get<MaterialityExternalEvidence[]>(`/esg/materiality/${assessmentId}/evidence`);
   return data;
 }
 

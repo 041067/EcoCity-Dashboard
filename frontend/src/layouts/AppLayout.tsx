@@ -1,16 +1,18 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { AppIcon, type IconName } from '../components/icons/AppIcon';
 import { useTheme } from '../contexts/useTheme';
 
 const NAV_ITEMS = [
-  { to: '/esg', label: 'ESG', icon: '🌱' },
-  { to: '/esg/materiality', label: 'Materialidade', icon: '🎯' },
-  { to: '/dashboard', label: 'Dashboard', icon: '📊' },
-  { to: '/mapa', label: 'Mapa', icon: '🗺️' },
-  { to: '/relatorios', label: 'Relatórios IA', icon: '🤖' },
-  { to: '/alertas', label: 'Alertas', icon: '🔔' },
-  { to: '/comparar', label: 'Comparar', icon: '⚖️' },
-  { to: '/chat', label: 'Chat IA', icon: '💬' },
-];
+  { to: '/esg', label: 'ESG', icon: 'leaf' },
+  { to: '/esg/intelligence', label: 'Inteligência', icon: 'activity' },
+  { to: '/esg/materiality', label: 'Materialidade', icon: 'target' },
+  { to: '/dashboard', label: 'Dashboard', icon: 'chart' },
+  { to: '/mapa', label: 'Mapa', icon: 'map' },
+  { to: '/relatorios', label: 'Relatórios IA', icon: 'bot' },
+  { to: '/alertas', label: 'Alertas', icon: 'bell' },
+  { to: '/comparar', label: 'Comparar', icon: 'scale' },
+  { to: '/chat', label: 'Chat IA', icon: 'chat' },
+] as const satisfies readonly { to: string; label: string; icon: IconName }[];
 
 export function AppLayout() {
   const { theme, toggleTheme } = useTheme();
@@ -20,7 +22,7 @@ export function AppLayout() {
       <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
           <NavLink to="/" className="flex items-center gap-2 text-xl font-bold text-emerald-600 dark:text-emerald-400">
-            <span>🌿</span>
+            <span className="rounded-lg bg-emerald-100 p-1.5 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"><AppIcon name="leaf" className="h-5 w-5" /></span>
             <span>EcoCity</span>
           </NavLink>
 
@@ -38,7 +40,7 @@ export function AppLayout() {
                   }`
                 }
               >
-                <span className="mr-1">{item.icon}</span>
+                <AppIcon name={item.icon} className="mr-1 inline-block h-4 w-4 align-[-2px]" />
                 {item.label}
               </NavLink>
             ))}
@@ -50,7 +52,7 @@ export function AppLayout() {
             aria-label={theme === 'light' ? 'Ativar modo escuro' : 'Ativar modo claro'}
             className="rounded-lg border border-gray-200 p-2 text-lg transition hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800"
           >
-            {theme === 'light' ? '🌙' : '☀️'}
+            <AppIcon name={theme === 'light' ? 'moon' : 'sun'} className="h-5 w-5" />
           </button>
         </div>
 
@@ -68,7 +70,7 @@ export function AppLayout() {
                 }`
               }
             >
-              <span className="mr-1">{item.icon}</span>
+              <AppIcon name={item.icon} className="mr-1 inline-block h-4 w-4 align-[-2px]" />
               {item.label}
             </NavLink>
           ))}

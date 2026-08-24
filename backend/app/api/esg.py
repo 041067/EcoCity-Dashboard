@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -5,6 +7,7 @@ from app.database.session import get_db
 from app.repositories.city_repository import CityRepository
 from app.repositories.esg_profile_repository import ESGProfileRepository
 from app.repositories.esg_topic_repository import ESGTopicRepository
+from app.repositories.indicator_repository import IndicatorRepository, IndicatorValueRepository
 from app.repositories.materiality_repository import ImmutableAssessmentError, MaterialityRepository
 from app.repositories.organization_repository import OrganizationRepository
 from app.repositories.site_repository import SiteRepository
@@ -24,6 +27,13 @@ from app.schemas.esg import (
     StakeholderCreate,
     StakeholderResponse,
 )
+from app.schemas.esg_intelligence import (
+    ESGIndicatorResponse,
+    IndicatorValueResponse,
+    MaterialityExternalEvidenceResponse,
+    ProviderStatusResponse,
+    SiteSyncResponse,
+)
 from app.schemas.materiality import (
     MaterialityAssessmentCreate,
     MaterialityAssessmentResponse,
@@ -35,6 +45,8 @@ from app.schemas.materiality import (
     StakeholderAssessmentInput,
     StakeholderAssessmentResponse,
 )
+from app.services.esg_data.evidence_service import EvidenceService
+from app.services.esg_data.provider_service import ProviderRegistry, ProviderService
 from app.services.materiality_service import IncompleteAssessmentError, MaterialityService
 
 router = APIRouter(prefix="/esg", tags=["ESG"])
@@ -65,6 +77,45 @@ def _validate_stakeholders(
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Stakeholder n\u00e3o pertence \u00e0 organiza\u00e7\u00e3o",
             )
+
+
+def _site_or_404(repo: SiteRepository, site_id: int):
+    site = repo.get_by_id(site_id)
+    if site is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unidade não encontrada")
+    return site
+
+
+def _indicator_value_response(value) -> IndicatorValueResponse:
+    ttl_by_provider = {provider.name: provider.ttl_seconds for provider in ProviderRegistry().all()}
+    ttl = ttl_by_provider.get(value.source, 6 * 60 * 60)
+    collected_at = value.collected_at
+    if collected_at.tzinfo is None:
+        collected_at = collected_at.replace(tzinfo=UTC)
+    age_seconds = max(0.0, (datetime.now(UTC) - collected_at).total_seconds())
+    freshness_score = round(max(0.0, 100 * (1 - age_seconds / (ttl * 4))), 2)
+    freshness_status = "fresh" if age_seconds <= ttl else "aging" if age_seconds <= ttl * 4 else "stale"
+    return IndicatorValueResponse(
+        id=value.id,
+        indicator=value.indicator,
+        organization_id=value.organization_id,
+        site_id=value.site_id,
+        site_name=value.site.name if value.site else None,
+        value=value.value,
+        unit=value.unit,
+        source=value.source,
+        source_reference=value.source_reference,
+        latitude=value.latitude,
+        longitude=value.longitude,
+        observed_at=value.observed_at,
+        collected_at=value.collected_at,
+        source_metadata=value.source_metadata,
+        quality_score=value.quality_score,
+        freshness_score=freshness_score,
+        freshness_status=freshness_status,
+        relevance_score=value.relevance_score,
+        confidence_score=value.confidence_score,
+    )
 
 
 @router.post("/organizations", response_model=OrganizationResponse, status_code=status.HTTP_201_CREATED)
@@ -187,6 +238,65 @@ def get_organization_overview(organization_id: int, db: Session = Depends(get_db
     )
 
 
+@router.get("/indicators", response_model=list[ESGIndicatorResponse])
+def list_indicators(category: str | None = None, db: Session = Depends(get_db)):
+    return IndicatorRepository(db).list_definitions(category)
+
+
+@router.get("/providers", response_model=list[ProviderStatusResponse])
+def list_provider_statuses(db: Session = Depends(get_db)):
+    return ProviderService(db).provider_statuses()
+
+
+@router.get(
+    "/organizations/{organization_id}/indicators",
+    response_model=list[IndicatorValueResponse],
+)
+def list_organization_indicators(
+    organization_id: int,
+    category: str | None = None,
+    db: Session = Depends(get_db),
+):
+    _organization_or_404(OrganizationRepository(db), organization_id)
+    values = IndicatorValueRepository(db).list_for_organization(organization_id, category)
+    return [_indicator_value_response(value) for value in values]
+
+
+@router.get("/sites/{site_id}/indicators", response_model=list[IndicatorValueResponse])
+def list_site_indicators(site_id: int, category: str | None = None, db: Session = Depends(get_db)):
+    _site_or_404(SiteRepository(db), site_id)
+    values = IndicatorValueRepository(db).list_for_site(site_id, category)
+    return [_indicator_value_response(value) for value in values]
+
+
+@router.get("/sites/{site_id}/climate-risk", response_model=list[IndicatorValueResponse])
+def get_site_climate_risk(site_id: int, db: Session = Depends(get_db)):
+    _site_or_404(SiteRepository(db), site_id)
+    values = IndicatorValueRepository(db).list_for_site(site_id, category="risk")
+    return [_indicator_value_response(value) for value in values]
+
+
+@router.get("/sites/{site_id}/air-quality", response_model=list[IndicatorValueResponse])
+def get_site_air_quality(site_id: int, db: Session = Depends(get_db)):
+    _site_or_404(SiteRepository(db), site_id)
+    values = IndicatorValueRepository(db).list_for_site(site_id, category="air")
+    return [_indicator_value_response(value) for value in values]
+
+
+@router.get("/sites/{site_id}/energy", response_model=list[IndicatorValueResponse])
+def get_site_energy(site_id: int, db: Session = Depends(get_db)):
+    _site_or_404(SiteRepository(db), site_id)
+    values = IndicatorValueRepository(db).list_for_site(site_id, category="energy")
+    return [_indicator_value_response(value) for value in values]
+
+
+@router.post("/sites/{site_id}/sync", response_model=SiteSyncResponse)
+def sync_site_intelligence(site_id: int, db: Session = Depends(get_db)):
+    site = _site_or_404(SiteRepository(db), site_id)
+    results = ProviderService(db).sync_site(site)
+    return SiteSyncResponse(site_id=site.id, results=results)
+
+
 @router.post(
     "/organizations/{organization_id}/materiality",
     response_model=MaterialityAssessmentResponse,
@@ -211,7 +321,7 @@ def create_materiality_assessment(
         )
     _validate_stakeholders(repository, organization_id, payload.stakeholders)
     try:
-        return repository.create(
+        assessment = repository.create(
             organization_id=organization_id,
             topic_id=payload.topic_id,
             reporting_year=payload.reporting_year,
@@ -221,6 +331,10 @@ def create_materiality_assessment(
             evidences=[item.model_dump() for item in payload.evidences],
             status=payload.status,
         )
+        if assessment.status == "completed":
+            EvidenceService(db).link_existing_for_assessment(assessment)
+            db.commit()
+        return assessment
     except IncompleteAssessmentError as exc:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)) from exc
 
@@ -302,6 +416,26 @@ def get_materiality_explanation(
 
 
 @router.get(
+    "/materiality/{assessment_id}/evidence",
+    response_model=list[MaterialityExternalEvidenceResponse],
+)
+def get_materiality_external_evidence(assessment_id: int, db: Session = Depends(get_db)):
+    assessment = MaterialityRepository(db).get_any(assessment_id)
+    if assessment is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Avaliação não encontrada")
+    evidences = EvidenceService(db).list_for_assessment(assessment_id)
+    return [
+        MaterialityExternalEvidenceResponse(
+            id=evidence.id,
+            relevance=evidence.relevance,
+            linked_at=evidence.created_at,
+            indicator_value=_indicator_value_response(evidence.indicator_value),
+        )
+        for evidence in evidences
+    ]
+
+
+@router.get(
     "/organizations/{organization_id}/materiality/{assessment_id}",
     response_model=MaterialityAssessmentResponse,
 )
@@ -326,13 +460,17 @@ def update_materiality_assessment(
     repository = MaterialityRepository(db)
     assessment = _assessment_or_404(repository, organization_id, assessment_id)
     try:
-        return repository.update(
+        updated = repository.update(
             assessment,
             impact=payload.impact.model_dump() if payload.impact else None,
             financial=payload.financial.model_dump() if payload.financial else None,
             evidences=[item.model_dump() for item in payload.evidences] if payload.evidences else None,
             status=payload.status,
         )
+        if updated.status == "completed":
+            EvidenceService(db).link_existing_for_assessment(updated)
+            db.commit()
+        return updated
     except ImmutableAssessmentError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     except IncompleteAssessmentError as exc:

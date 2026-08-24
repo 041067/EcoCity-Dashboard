@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { AppIcon, type IconName } from '../../components/icons/AppIcon';
 import { CityMapBackground } from './CityMapBackground';
 
 const NAV_LINKS = [
@@ -11,23 +12,23 @@ const NAV_LINKS = [
 
 const HERO_CHIPS = ['Dados em tempo real', 'IA Generativa', 'Monitoramento Ambiental'];
 
-const SOLUTION_CARDS = [
-  { icon: '🌦️', title: 'Clima', description: 'Dados meteorológicos em tempo real.' },
-  { icon: '🌎', title: 'Qualidade do Ar', description: 'Monitoramento contínuo.' },
-  { icon: '🤖', title: 'IA Generativa', description: 'Relatórios automáticos.' },
-  { icon: '🗺️', title: 'Mapas', description: 'Visualização geográfica.' },
-  { icon: '📈', title: 'Dashboard', description: 'Indicadores em tempo real.' },
-  { icon: '🚨', title: 'Alertas', description: 'Eventos críticos automaticamente detectados.' },
+const SOLUTION_CARDS: { icon: IconName; title: string; description: string }[] = [
+  { icon: 'cloud', title: 'Clima', description: 'Dados meteorológicos em tempo real.' },
+  { icon: 'air', title: 'Qualidade do Ar', description: 'Monitoramento contínuo.' },
+  { icon: 'bot', title: 'IA Generativa', description: 'Relatórios automáticos.' },
+  { icon: 'map', title: 'Mapas', description: 'Visualização geográfica.' },
+  { icon: 'chart', title: 'Dashboard', description: 'Indicadores em tempo real.' },
+  { icon: 'alert', title: 'Alertas', description: 'Eventos críticos automaticamente detectados.' },
 ];
 
 const FEATURE_GROUPS = [
   {
-    icon: '📡',
+    icon: 'sensor' as IconName,
     title: 'Monitoramento',
     items: ['Temperatura', 'Umidade', 'Vento', 'Índice UV', 'AQI'],
   },
   {
-    icon: '🧠',
+    icon: 'brain' as IconName,
     title: 'Inteligência Artificial',
     items: ['Chat IA', 'Relatórios', 'Recomendações'],
   },
@@ -39,11 +40,17 @@ const METRICS = [
   { value: '15 min', label: 'Atualização automática' },
 ];
 
-const PROBLEM_STEPS = [
-  { icon: '🏙️', label: 'Cidade', sub: 'Sensores e órgãos públicos' },
-  { icon: '🌦️', label: 'Clima', sub: 'Boletins meteorológicos' },
-  { icon: '🌫️', label: 'Poluição', sub: 'Qualidade do ar' },
-  { icon: '🚗', label: 'Trânsito', sub: 'Mobilidade urbana' },
+const PROBLEM_STEPS: { icon: IconName; label: string; sub: string }[] = [
+  { icon: 'city', label: 'Cidade', sub: 'Sensores e órgãos públicos' },
+  { icon: 'cloud', label: 'Clima', sub: 'Boletins meteorológicos' },
+  { icon: 'air', label: 'Poluição', sub: 'Qualidade do ar' },
+  { icon: 'activity', label: 'Trânsito', sub: 'Mobilidade urbana' },
+];
+
+const PROBLEM_ITEMS: { icon: IconName; title: string; sub: string }[] = [
+  { icon: 'folder', title: 'Informações descentralizadas', sub: 'Cada secretaria guarda seus próprios dados, sem conexão entre eles.' },
+  { icon: 'activity', title: 'Análises manuais e lentas', sub: 'Boletins levam dias para sair — tempo demais para reagir.' },
+  { icon: 'alert', title: 'Decisões reativas', sub: 'Sem visão unificada, as cidades agem depois do evento, não antes.' },
 ];
 
 function Eyebrow({ dark = false, children }: { dark?: boolean; children: ReactNode }) {
@@ -120,8 +127,8 @@ function Hero() {
             <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
             IA para transformar dados ambientais em decisões inteligentes
           </p>
-          <h1 className="mt-6 text-4xl font-extrabold text-white sm:text-5xl lg:text-6xl">
-            🌎 EcoCity Dashboard
+          <h1 className="mt-6 flex items-center gap-3 text-4xl font-extrabold text-white sm:text-5xl lg:text-6xl">
+            <AppIcon name="leaf" className="h-10 w-10 text-emerald-400 sm:h-12 sm:w-12" />EcoCity Dashboard
           </h1>
           <p className="mt-5 text-xl font-semibold text-cyan-300 sm:text-2xl">
             Transformando dados ambientais em decisões inteligentes para cidades mais sustentáveis.
@@ -137,7 +144,7 @@ function Hero() {
               to="/dashboard"
               className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-emerald-500/30 transition hover:scale-105 hover:bg-emerald-400"
             >
-              🚀 Acessar Dashboard
+              <AppIcon name="rocket" className="h-5 w-5" />Acessar Dashboard
             </Link>
             <a
               href="#solucao"
@@ -184,14 +191,10 @@ function Problem() {
             descentralizadas e análises manuais.
           </p>
           <ul className="mt-8 space-y-4">
-            {[
-              ['📂', 'Informações descentralizadas', 'Cada secretaria guarda seus próprios dados, sem conexão entre eles.'],
-              ['⏳', 'Análises manuais e lentas', 'Boletins levam dias para sair — tempo demais para reagir.'],
-              ['⚠️', 'Decisões reativas', 'Sem visão unificada, as cidades agem depois do evento, não antes.'],
-            ].map(([icon, title, sub]) => (
+            {PROBLEM_ITEMS.map(({ icon, title, sub }) => (
               <li key={title} className="flex items-start gap-4">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-xl shadow-sm ring-1 ring-slate-200">
-                  {icon}
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-600 shadow-sm ring-1 ring-slate-200">
+                  <AppIcon name={icon} className="h-5 w-5" />
                 </span>
                 <div>
                   <p className="font-semibold text-slate-800">{title}</p>
@@ -208,7 +211,7 @@ function Problem() {
               {PROBLEM_STEPS.map((step, i) => (
                 <div key={step.label}>
                   <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
-                    <span className="text-2xl">{step.icon}</span>
+                    <AppIcon name={step.icon} className="h-6 w-6 text-emerald-600" />
                     <div>
                       <p className="font-bold text-slate-800">{step.label}</p>
                       <p className="text-xs text-slate-500">{step.sub}</p>
@@ -222,7 +225,7 @@ function Problem() {
                 </div>
               ))}
               <div className="mt-1 flex items-center gap-4 rounded-2xl border-2 border-dashed border-red-300 bg-red-50 px-5 py-4">
-                <span className="text-2xl">⚠️</span>
+                <AppIcon name="alert" className="h-6 w-6 text-red-600" />
                 <div>
                   <p className="font-bold text-red-600">Dados espalhados</p>
                   <p className="text-xs text-red-400">Informações desconectadas, sem análise</p>
@@ -257,7 +260,7 @@ function Solution() {
               key={card.title}
               className="group rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:border-emerald-400/50 hover:bg-white/10"
             >
-              <span className="text-3xl">{card.icon}</span>
+              <AppIcon name={card.icon} className="h-8 w-8 text-emerald-300" />
               <h3 className="mt-4 text-lg font-bold text-white">{card.title}</h3>
               <p className="mt-1 text-sm text-slate-400">{card.description}</p>
             </div>
@@ -282,8 +285,8 @@ function Features() {
           {FEATURE_GROUPS.map((group) => (
             <div key={group.title} className="rounded-3xl border border-slate-200 bg-slate-50 p-8">
               <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 text-2xl">
-                  {group.icon}
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-emerald-500 text-white">
+                  <AppIcon name={group.icon} className="h-6 w-6" />
                 </span>
                 <h3 className="text-xl font-bold text-slate-900">{group.title}</h3>
               </div>
@@ -293,8 +296,8 @@ function Features() {
                     key={item}
                     className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700"
                   >
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-600">
-                      ✔
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                      <AppIcon name="check" className="h-3.5 w-3.5" />
                     </span>
                     {item}
                   </li>
@@ -342,9 +345,7 @@ function FinalCta() {
         aria-hidden="true"
       />
       <div className="relative z-10 mx-auto max-w-3xl px-4">
-        <p className="text-5xl" aria-hidden="true">
-          🌎
-        </p>
+        <AppIcon name="city" className="mx-auto h-12 w-12 text-emerald-400" />
         <h2 className="mt-6 text-4xl font-extrabold text-white sm:text-5xl">
           O futuro das cidades começa com{' '}
           <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
@@ -360,7 +361,7 @@ function FinalCta() {
           to="/dashboard"
           className="mt-10 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-10 py-5 text-xl font-bold text-white shadow-xl shadow-emerald-500/40 transition hover:scale-105 hover:bg-emerald-400"
         >
-          🚀 Abrir Plataforma
+          <AppIcon name="rocket" className="h-6 w-6" />Abrir Plataforma
         </Link>
       </div>
     </section>
@@ -373,7 +374,7 @@ export function Landing() {
       <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/80 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
           <a href="#inicio" className="flex items-center gap-2 text-xl font-bold text-emerald-400">
-            <span>🌿</span>
+            <AppIcon name="leaf" className="h-5 w-5" />
             <span>EcoCity</span>
           </a>
           <nav className="hidden items-center gap-6 md:flex" aria-label="Navegação da página">
@@ -404,7 +405,7 @@ export function Landing() {
       <FinalCta />
 
       <footer className="border-t border-white/10 bg-slate-950 py-6 text-center text-xs text-slate-500">
-        🌿 EcoCity Dashboard — Monitoramento Ambiental Inteligente · MIT License
+        <span className="inline-flex items-center gap-1"><AppIcon name="leaf" className="h-3.5 w-3.5" />EcoCity Dashboard — Monitoramento Ambiental Inteligente · MIT License</span>
       </footer>
     </div>
   );

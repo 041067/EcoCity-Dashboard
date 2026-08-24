@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useAlerts, useCities } from '../../hooks/useApiQueries';
 import { AsyncState } from '../../components/AsyncState';
+import { AppIcon, type IconName } from '../../components/icons/AppIcon';
 import type { Alert } from '../../types';
 
-const SEVERITY_STYLES: Record<string, { bg: string; icon: string; label: string }> = {
-  danger: { bg: 'border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950', icon: '🔴', label: 'Crítico' },
-  warning: { bg: 'border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950', icon: '🟡', label: 'Atenção' },
-  info: { bg: 'border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950', icon: '🟢', label: 'Normal' },
+const SEVERITY_STYLES: Record<string, { bg: string; icon: IconName; iconColor: string; label: string }> = {
+  danger: { bg: 'border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950', icon: 'alert', iconColor: 'text-red-600', label: 'Crítico' },
+  warning: { bg: 'border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950', icon: 'alert', iconColor: 'text-amber-600', label: 'Atenção' },
+  info: { bg: 'border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950', icon: 'check', iconColor: 'text-emerald-600', label: 'Normal' },
 };
 
 export function AlertsPage() {
@@ -44,7 +45,7 @@ export function AlertsPage() {
           return (
             <div key={sev} className={`rounded-xl border p-4 ${style.bg}`}>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                {style.icon} {style.label}
+                <span className="inline-flex items-center gap-1"><AppIcon name={style.icon} className={`h-4 w-4 ${style.iconColor}`} />{style.label}</span>
               </p>
               <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
                 {severityCounts[sev] ?? 0}
@@ -53,7 +54,7 @@ export function AlertsPage() {
           );
         })}
         <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-300">📊 Total</p>
+          <p className="inline-flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300"><AppIcon name="chart" className="h-4 w-4 text-gray-500" />Total</p>
           <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
             {(alertsQuery.data ?? []).length}
           </p>
@@ -104,7 +105,7 @@ export function AlertsPage() {
                 className={`flex flex-col gap-1 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between ${style.bg}`}
               >
                 <div className="flex items-start gap-3">
-                  <span className="text-xl">{style.icon}</span>
+                  <AppIcon name={style.icon} className={`h-5 w-5 shrink-0 ${style.iconColor}`} />
                   <div>
                     <p className="font-semibold text-gray-900 dark:text-white">{alert.title}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">{alert.description}</p>

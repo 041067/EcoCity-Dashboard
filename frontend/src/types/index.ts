@@ -277,3 +277,70 @@ export interface MaterialityExplanation {
   evidences: AssessmentEvidence[];
   weights: { impact: number; financial: number; stakeholder: number };
 }
+
+export interface ESGIndicator {
+  id: number;
+  code: string;
+  name: string;
+  pillar: ESGPillar;
+  category: string;
+  unit: string;
+  description?: string | null;
+  source_type: string;
+  active: boolean;
+}
+
+export type FreshnessStatus = 'fresh' | 'aging' | 'stale';
+
+export interface IndicatorValue {
+  id: number;
+  indicator: ESGIndicator;
+  organization_id: number;
+  site_id: number;
+  site_name?: string | null;
+  value: number;
+  unit: string;
+  source: string;
+  source_reference?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  observed_at?: string | null;
+  collected_at: string;
+  source_metadata?: Record<string, unknown> | null;
+  quality_score: number;
+  freshness_score: number;
+  freshness_status: FreshnessStatus;
+  relevance_score: number;
+  confidence_score: number;
+}
+
+export interface ProviderStatus {
+  name: string;
+  display_name: string;
+  status: 'unknown' | 'online' | 'degraded' | 'offline';
+  last_sync?: string | null;
+  data_categories: string[];
+  priority: number;
+  last_message?: string | null;
+}
+
+export interface ProviderSyncItem {
+  provider: string;
+  status: string;
+  cached: boolean;
+  values_collected: number;
+  duration_ms?: number | null;
+  message?: string | null;
+}
+
+export interface SiteSyncResponse {
+  site_id: number;
+  results: ProviderSyncItem[];
+}
+
+export interface MaterialityExternalEvidence {
+  id: number;
+  relevance: string;
+  linked_at?: string | null;
+  indicator_value: IndicatorValue;
+}
