@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { AppIcon } from './icons/AppIcon';
 
 interface AsyncStateProps {
   isLoading: boolean;
@@ -51,7 +52,7 @@ export function AsyncState({
   if (isEmpty) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 py-12 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
-        <span className="text-3xl">🌱</span>
+        <AppIcon name="leaf" className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
         <p>{emptyMessage}</p>
       </div>
     );

@@ -39,3 +39,4 @@ class Organization(Base):
     materiality_assessments = relationship(
         "MaterialityAssessment", back_populates="organization", cascade="all, delete-orphan"
     )
+    indicator_values = relationship("IndicatorValue", back_populates="organization", cascade="all, delete-orphan")

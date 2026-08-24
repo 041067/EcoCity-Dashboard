@@ -5,10 +5,12 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 from app.database.session import SessionLocal
 from app.logs.logger import logger
+from app.models.site import Site
 from app.repositories.alert_repository import AlertRepository
 from app.repositories.city_repository import CityRepository
 from app.repositories.reading_repository import ReadingRepository
 from app.services.alert_service import AlertService
+from app.services.esg_data.provider_service import ProviderService
 from app.services.score_service import ScoreService
 from app.services.weather_service import WeatherService
 
@@ -50,6 +52,18 @@ class Collector:
         except Exception as e:
             logger.error("Collector job failed: %s", e)
 
+    def esg_intelligence_job(self, providers: list[str]) -> None:
+        """Synchronize one provider group without ever impacting the core weather collector."""
+        try:
+            with SessionLocal() as db:
+                sites = db.query(Site).all()
+                service = ProviderService(db)
+                for site in sites:
+                    service.sync_site(site, providers)
+            logger.info("ESG intelligence sync completed providers=%s sites=%s", providers, len(sites))
+        except Exception:
+            logger.exception("ESG intelligence scheduler failed providers=%s", providers)
+
     def start(self) -> None:
         if self.scheduler.running:
             return
@@ -58,6 +72,41 @@ class Collector:
                 self.collect_job,
                 trigger=IntervalTrigger(minutes=COLLECT_INTERVAL_MINUTES),
                 id="collector_15min",
+                replace_existing=True,
+            )
+            self.scheduler.add_job(
+                self.esg_intelligence_job,
+                args=[["open_meteo"]],
+                trigger=IntervalTrigger(minutes=15),
+                id="esg_open_meteo_15min",
+                replace_existing=True,
+            )
+            self.scheduler.add_job(
+                self.esg_intelligence_job,
+                args=[["openaq"]],
+                trigger=IntervalTrigger(hours=1),
+                id="esg_openaq_hourly",
+                replace_existing=True,
+            )
+            self.scheduler.add_job(
+                self.esg_intelligence_job,
+                args=[["nasa_power"]],
+                trigger=IntervalTrigger(days=1),
+                id="esg_nasa_daily",
+                replace_existing=True,
+            )
+            self.scheduler.add_job(
+                self.esg_intelligence_job,
+                args=[["inpe"]],
+                trigger=IntervalTrigger(days=1),
+                id="esg_inpe_daily",
+                replace_existing=True,
+            )
+            self.scheduler.add_job(
+                self.esg_intelligence_job,
+                args=[["aneel"]],
+                trigger=IntervalTrigger(days=1),
+                id="esg_aneel_daily",
                 replace_existing=True,
             )
             self.scheduler.start()

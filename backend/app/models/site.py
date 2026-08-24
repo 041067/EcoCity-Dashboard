@@ -31,3 +31,4 @@ class Site(Base):
 
     organization = relationship("Organization", back_populates="sites")
     city = relationship("City")
+    indicator_values = relationship("IndicatorValue", back_populates="site", cascade="all, delete-orphan")
