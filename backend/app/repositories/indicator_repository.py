@@ -22,6 +22,8 @@ class IndicatorRepository:
             indicator = ESGIndicator(**data)
             self.db.add(indicator)
             self.db.flush()
+        elif "direction" in data and indicator.direction != data["direction"]:
+            indicator.direction = data["direction"]
         return indicator
 
 

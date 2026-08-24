@@ -15,6 +15,24 @@ class IndicatorDefinition:
     description: str
     source_type: str = "external"
     pillar: str = "E"
+    direction: str = "higher_is_better"
+
+
+LOWER_IS_BETTER_CODES = {
+    "AIR_PM25",
+    "AIR_PM10",
+    "AIR_NO2",
+    "AIR_O3",
+    "AIR_SO2",
+    "AIR_CO",
+    "FOREST_FIRE_ALERTS",
+    "TERRITORY_DEFORESTATION_ALERTS",
+    "CLIMATE_HEAT_RISK",
+    "WATER_DROUGHT_RISK",
+    "CLIMATE_FLOOD_RISK",
+    "CLIMATE_WIND_RISK",
+    "WATER_STRESS_SIGNAL",
+}
 
 
 @dataclass(frozen=True)
@@ -96,6 +114,10 @@ class NormalizationService:
         if not isfinite(number):
             return None
         definition = CATALOG[code]
+        if code in LOWER_IS_BETTER_CODES:
+            definition = IndicatorDefinition(
+                **{**definition.__dict__, "direction": "lower_is_better"}
+            )
         if unit and unit != definition.unit:
             return None
         return NormalizedIndicator(

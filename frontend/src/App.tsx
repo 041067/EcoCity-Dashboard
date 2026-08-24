@@ -30,6 +30,7 @@ const MaterialityPage = lazy(() =>
 const IntelligencePage = lazy(() =>
   import('./pages/Intelligence').then((m) => ({ default: m.IntelligencePage })),
 );
+const ActionsPage = lazy(() => import('./pages/Actions').then((m) => ({ default: m.ActionsPage })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,6 +58,7 @@ export function AppRoutes() {
           <Route path="/esg" element={<ESGPage />} />
           <Route path="/esg/intelligence" element={<IntelligencePage />} />
           <Route path="/esg/materiality" element={<MaterialityPage />} />
+          <Route path="/esg/actions" element={<ActionsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

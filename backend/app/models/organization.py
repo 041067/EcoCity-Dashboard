@@ -40,3 +40,9 @@ class Organization(Base):
         "MaterialityAssessment", back_populates="organization", cascade="all, delete-orphan"
     )
     indicator_values = relationship("IndicatorValue", back_populates="organization", cascade="all, delete-orphan")
+    targets = relationship("ESGTarget", back_populates="organization", cascade="all, delete-orphan")
+    gaps = relationship("ESGGap", back_populates="organization", cascade="all, delete-orphan")
+    risks = relationship("ESGRisk", back_populates="organization", cascade="all, delete-orphan")
+    opportunities = relationship("ESGOpportunity", back_populates="organization", cascade="all, delete-orphan")
+    action_plans = relationship("ActionPlan", back_populates="organization", cascade="all, delete-orphan")
+    audit_entries = relationship("AuditEntry", back_populates="organization", cascade="all, delete-orphan")

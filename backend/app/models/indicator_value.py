@@ -47,3 +47,5 @@ class IndicatorValue(Base):
     organization = relationship("Organization", back_populates="indicator_values")
     site = relationship("Site", back_populates="indicator_values")
     materiality_evidences = relationship("MaterialityEvidence", back_populates="indicator_value")
+    risks = relationship("ESGRisk", back_populates="indicator_value")
+    opportunities = relationship("ESGOpportunity", back_populates="indicator_value")

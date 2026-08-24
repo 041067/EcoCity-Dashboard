@@ -32,3 +32,8 @@ class Site(Base):
     organization = relationship("Organization", back_populates="sites")
     city = relationship("City")
     indicator_values = relationship("IndicatorValue", back_populates="site", cascade="all, delete-orphan")
+    targets = relationship("ESGTarget", back_populates="site")
+    gaps = relationship("ESGGap", back_populates="site")
+    risks = relationship("ESGRisk", back_populates="site")
+    opportunities = relationship("ESGOpportunity", back_populates="site")
+    action_plans = relationship("ActionPlan", back_populates="site")

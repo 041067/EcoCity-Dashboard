@@ -168,7 +168,7 @@ export function MaterialityPage() {
   const selectedTopic = topics.find((link) => link.topic_id === topicId)?.topic;
   const detail = selectedAssessment ?? matrixAssessments[0] ?? null;
   const explanationQuery = useMaterialityExplanation(organizationId, detail?.id);
-  const externalEvidenceQuery = useMaterialityExternalEvidence(detail?.id);
+  const externalEvidenceQuery = useMaterialityExternalEvidence(organizationId, detail?.id);
   const isLoading = organizationsQuery.isLoading || (Boolean(organizationId) && organizationTopicsQuery.isLoading);
   const queryError = organizationsQuery.error ?? organizationTopicsQuery.error ?? matrixQuery.error;
 
