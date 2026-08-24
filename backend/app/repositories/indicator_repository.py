@@ -81,6 +81,14 @@ class IndicatorValueRepository:
             is not None
         )
 
+    def has_provider_data(self, site_id: int, provider: str) -> bool:
+        return (
+            self.db.query(IndicatorValue.id)
+            .filter(IndicatorValue.site_id == site_id, IndicatorValue.source == provider)
+            .first()
+            is not None
+        )
+
     def latest_for_site_codes(self, site_id: int, codes: list[str]) -> dict[str, IndicatorValue]:
         values = self.list_for_site(site_id, codes=codes, limit=500)
         latest: dict[str, IndicatorValue] = {}
