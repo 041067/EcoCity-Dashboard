@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from app.clients.provider_http import ProviderClientError, get_json
 from app.core.config import settings
@@ -42,5 +42,5 @@ class OpenAQClient:
         return {
             "payload": {"results": measurements},
             "duration_ms": location_duration + latest_duration,
-            "collected_at": datetime.utcnow().isoformat(),
+            "collected_at": datetime.now(UTC).isoformat(),
         }

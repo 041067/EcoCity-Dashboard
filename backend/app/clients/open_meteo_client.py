@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 import httpx
 
@@ -86,7 +86,7 @@ class OpenMeteoClient:
                 values = hourly.get(field, [])
                 if isinstance(values, list) and len(values) > index:
                     current[field] = values[index]
-        return {"payload": data, "duration_ms": duration_ms, "collected_at": datetime.utcnow().isoformat()}
+        return {"payload": data, "duration_ms": duration_ms, "collected_at": datetime.now(UTC).isoformat()}
 
     def get_intelligence_air_quality(self, latitude: float, longitude: float) -> dict:
         data, duration_ms = get_json(
@@ -99,4 +99,4 @@ class OpenMeteoClient:
                 "timezone": "UTC",
             },
         )
-        return {"payload": data, "duration_ms": duration_ms, "collected_at": datetime.utcnow().isoformat()}
+        return {"payload": data, "duration_ms": duration_ms, "collected_at": datetime.now(UTC).isoformat()}

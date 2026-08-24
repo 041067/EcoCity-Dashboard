@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from app.clients.provider_http import get_json
 from app.core.config import settings
@@ -19,4 +19,4 @@ class NASAPowerClient:
                 "format": "JSON",
             },
         )
-        return {"payload": data, "duration_ms": duration_ms, "collected_at": datetime.utcnow().isoformat()}
+        return {"payload": data, "duration_ms": duration_ms, "collected_at": datetime.now(UTC).isoformat()}

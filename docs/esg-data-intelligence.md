@@ -24,9 +24,9 @@ O vínculo `MaterialityEvidence` registra quais observações externas sustentam
 | INPE | território | diária | último valor no banco |
 | ANEEL | energia | diária | último valor no banco |
 
-OpenAQ precisa de `OPENAQ_API_KEY`. INPE e ANEEL usam endpoints configuráveis por `INPE_API_URL` e `ANEEL_API_URL`, porque seus datasets e contratos de acesso variam. A ausência dessas configurações marca somente a fonte como indisponível; nunca derruba a aplicação.
+OpenAQ precisa de `OPENAQ_API_KEY`. O provider INPE consulta diretamente os serviços WFS públicos de focos de queimadas e alertas DETER da TerraBrasilis, em um raio e janela temporal configuráveis. O provider ANEEL consulta o DataStore público do SIGA por UF da unidade, calculando participação renovável e capacidade instalada em operação; não representa geração instantânea. Os defaults podem ser revisados por variáveis `INPE_*` e `ANEEL_*` no ambiente.
 
-Todos os clientes usam HTTPS, timeout, uma repetição limitada para falhas transitórias, cache por provider/site e circuit breaker após falhas consecutivas. Logs de sincronização registram provider, status, categoria, duração e mensagem sem incluir credenciais.
+Todos os clientes usam HTTPS, timeout, uma repetição limitada para falhas transitórias, cache por provider/site e circuit breaker após falhas consecutivas. Se o circuito abrir, os valores previamente persistidos continuam disponíveis pelas rotas de indicadores, com freshness explícito. Logs de sincronização registram provider, status, categoria, duração e mensagem sem incluir credenciais.
 
 ## Riscos climáticos
 

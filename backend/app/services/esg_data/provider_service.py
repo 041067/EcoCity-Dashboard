@@ -14,6 +14,7 @@ from app.clients.nasa_power_client import NASAPowerClient
 from app.clients.open_meteo_client import OpenMeteoClient
 from app.clients.openaq_client import OpenAQClient
 from app.clients.provider_http import ProviderClientError
+from app.core.config import settings
 from app.logs.logger import logger
 from app.models.site import Site
 from app.repositories.indicator_repository import IndicatorRepository, IndicatorValueRepository
@@ -40,6 +41,9 @@ class ESGDataProvider(ABC):
 
     def health_check(self) -> dict[str, str]:
         return {"status": "not_checked"}
+
+    def configuration_error(self) -> str | None:
+        return None
 
 
 class OpenMeteoProvider(ESGDataProvider):
@@ -69,6 +73,11 @@ class OpenAQProvider(ESGDataProvider):
 
     def fetch(self, site: Site) -> dict[str, Any]:
         return self.client.get_observations(site.latitude, site.longitude)
+
+    def configuration_error(self) -> str | None:
+        if not settings.OPENAQ_API_KEY:
+            return "OPENAQ_API_KEY is not configured"
+        return None
 
 
 class NASAPowerProvider(ESGDataProvider):
@@ -101,7 +110,8 @@ class ANEELProvider(ESGDataProvider):
         self.client = client or ANEELClient()
 
     def fetch(self, site: Site) -> dict[str, Any]:
-        return self.client.get_energy_context(site.latitude, site.longitude)
+        state_code = site.city.state if site.city else None
+        return self.client.get_energy_context(state_code)
 
 
 class ProviderRegistry:
@@ -164,9 +174,13 @@ class ProviderService:
     def _sync_provider(self, site: Site, provider: ESGDataProvider) -> ProviderSyncResult:
         if site.latitude is None or site.longitude is None:
             return self._result(provider, site, "skipped", 0, message="Site has no latitude/longitude")
+        if configuration_error := provider.configuration_error():
+            return self._result(provider, site, "not_configured", 0, message=configuration_error)
         now = datetime.now(UTC)
         if self._open_until.get(provider.name, now) > now:
-            return self._result(provider, site, "circuit_open", 0, message="Fallback to cached data")
+            cached = self.values.has_provider_data(site.id, provider.name)
+            message = "Circuit open; cached values remain available" if cached else "Circuit open; no cached values available"
+            return self._result(provider, site, "circuit_open", 0, message=message, cached=cached)
         if self.values.has_fresh_provider_data(site.id, provider.name, provider.ttl_seconds):
             return self._result(provider, site, "cached", 0, cached=True, message="Recent cached values available")
         started = monotonic()
@@ -175,6 +189,8 @@ class ProviderService:
             normalized = provider.normalize(raw, self.normalizer)
             if provider.name == "open_meteo":
                 normalized.extend(self.risks.derive(normalized))
+            if not normalized:
+                raise ProviderClientError(provider.name, "Provider returned no supported indicators")
             saved = self._persist(site, normalized)
             self.db.commit()
             self._failures.pop(provider.name, None)
@@ -270,7 +286,11 @@ class ProviderService:
         for provider in self.registry.all():
             log = latest.get(provider.name)
             status = "unknown"
-            if log:
+            message = log.message if log else None
+            if configuration_error := provider.configuration_error():
+                status = "offline"
+                message = configuration_error
+            elif log:
                 status = "online" if log.status in {"success", "cached"} else "degraded"
                 if log.status in {"failed", "circuit_open"}:
                     status = "offline"
@@ -281,6 +301,6 @@ class ProviderService:
                 "last_sync": log.created_at if log else None,
                 "data_categories": list(provider.categories),
                 "priority": provider.priority,
-                "last_message": log.message if log else None,
+                "last_message": message,
             })
         return result

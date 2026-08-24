@@ -53,6 +53,7 @@ CATALOG: dict[str, IndicatorDefinition] = {
     "TERRITORY_DEFORESTATION_ALERTS": IndicatorDefinition("TERRITORY_DEFORESTATION_ALERTS", "Alertas de desmatamento", "territory", "alertas", "Alertas de desmatamento no raio configurado."),
     "ENERGY_RENEWABLE_SHARE": IndicatorDefinition("ENERGY_RENEWABLE_SHARE", "Participação renovável", "energy", "%", "Participação de fontes renováveis no contexto elétrico."),
     "ENERGY_GENERATION": IndicatorDefinition("ENERGY_GENERATION", "Geração de energia", "energy", "MW", "Geração elétrica reportada pela fonte."),
+    "ENERGY_INSTALLED_CAPACITY": IndicatorDefinition("ENERGY_INSTALLED_CAPACITY", "Capacidade instalada", "energy", "MW", "Capacidade instalada em operação reportada pela fonte."),
     "CLIMATE_HEAT_RISK": IndicatorDefinition("CLIMATE_HEAT_RISK", "Risco de calor", "risk", "índice", "Risco determinístico de calor.", "derived"),
     "WATER_DROUGHT_RISK": IndicatorDefinition("WATER_DROUGHT_RISK", "Risco de seca", "risk", "índice", "Risco determinístico de seca.", "derived"),
     "CLIMATE_FLOOD_RISK": IndicatorDefinition("CLIMATE_FLOOD_RISK", "Risco de inundação", "risk", "índice", "Risco determinístico de inundação.", "derived"),
@@ -221,24 +222,36 @@ class NormalizationService:
         raw = payload.get("payload", payload)
         if not isinstance(raw, dict):
             return []
+        reference = raw.get("source_reference", "https://terrabrasilis.dpi.inpe.br/")
+        metadata = {
+            key: raw.get(key)
+            for key in ("radius_km", "lookback_days", "dataset", "scope")
+            if raw.get(key) is not None
+        }
         return [
             item
             for code, value in (
                 ("FOREST_FIRE_ALERTS", raw.get("fire_alerts", raw.get("fires"))),
                 ("TERRITORY_DEFORESTATION_ALERTS", raw.get("deforestation_alerts", raw.get("deforestation"))),
             )
-            if (item := self._item(code, value, "inpe", "INPE configured endpoint", self._observed(raw.get("observed_at")), {"radius_km": raw.get("radius_km", 10)})) is not None
+            if (item := self._item(code, value, "inpe", str(reference), self._observed(raw.get("observed_at")), metadata)) is not None
         ]
 
     def _aneel(self, payload: dict[str, Any]) -> list[NormalizedIndicator]:
         raw = payload.get("payload", payload)
         if not isinstance(raw, dict):
             return []
+        reference = raw.get("source_reference", "https://dadosabertos.aneel.gov.br/")
+        metadata = {
+            key: raw.get(key)
+            for key in ("dataset", "state", "record_count", "scope")
+            if raw.get(key) is not None
+        }
         return [
             item
             for code, value in (
                 ("ENERGY_RENEWABLE_SHARE", raw.get("renewable_share")),
-                ("ENERGY_GENERATION", raw.get("generation_mw")),
+                ("ENERGY_INSTALLED_CAPACITY", raw.get("installed_capacity_mw")),
             )
-            if (item := self._item(code, value, "aneel", "ANEEL configured endpoint", self._observed(raw.get("observed_at")), {"dataset": raw.get("dataset")})) is not None
+            if (item := self._item(code, value, "aneel", str(reference), self._observed(raw.get("observed_at")), metadata)) is not None
         ]
