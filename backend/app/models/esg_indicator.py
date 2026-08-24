@@ -1,4 +1,14 @@
-from sqlalchemy import Boolean, CheckConstraint, Column, DateTime, Integer, String, Text, func
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Column,
+    DateTime,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import relationship
 
 from app.database.session import Base
@@ -10,10 +20,11 @@ class ESGIndicator(Base):
     __tablename__ = "esg_indicators"
     __table_args__ = (
         CheckConstraint("pillar IN ('E', 'S', 'G')", name="ck_esg_indicators_pillar"),
+        UniqueConstraint("code"),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    code = Column(String(100), nullable=False, unique=True, index=True)
+    code = Column(String(100), nullable=False, index=True)
     name = Column(String(200), nullable=False)
     pillar = Column(String(1), nullable=False, default="E", server_default="E")
     category = Column(String(80), nullable=False, index=True)
