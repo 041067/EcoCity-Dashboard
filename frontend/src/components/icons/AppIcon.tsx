@@ -10,6 +10,7 @@ export type IconName =
   | 'building'
   | 'chart'
   | 'check'
+  | 'close'
   | 'city'
   | 'cloud'
   | 'document'
@@ -17,6 +18,7 @@ export type IconName =
   | 'folder'
   | 'leaf'
   | 'map'
+  | 'menu'
   | 'moon'
   | 'rocket'
   | 'scale'
@@ -41,6 +43,7 @@ const PATHS: Record<IconName, ReactNode> = {
   building: <><path d="M4 21V4h12v17M2 21h20M8 8h2M8 12h2M8 16h2M14 8h2M14 12h2M14 16h2" /></>,
   chart: <><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></>,
   check: <><path d="m5 12 4 4L19 6" /></>,
+  close: <><path d="m6 6 12 12M18 6 6 18" /></>,
   city: <><path d="M3 21h18M5 21V9l5-3v15M10 21V4l5 3v14M15 21v-8l4 2v6M7 12h1M7 16h1M12 9h1M12 13h1" /></>,
   cloud: <><path d="M17.5 19H8a5 5 0 1 1 1.1-9.88A5.5 5.5 0 0 1 20 11a4 4 0 0 1-2.5 8Z" /></>,
   document: <><path d="M6 3h8l4 4v14H6z" /><path d="M14 3v5h5M9 13h6M9 17h6" /></>,
@@ -48,6 +51,7 @@ const PATHS: Record<IconName, ReactNode> = {
   folder: <><path d="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" /></>,
   leaf: <><path d="M20 4C10 4 4 9 4 17c0 2 1 3 3 3 8 0 13-6 13-16Z" /><path d="M4 20c4-5 8-8 13-11" /></>,
   map: <><path d="m9 18-6 3V6l6-3 6 3 6-3v15l-6 3z" /><path d="M9 3v15M15 6v15" /></>,
+  menu: <><path d="M4 7h16M4 12h16M4 17h16" /></>,
   moon: <><path d="M20.5 15.5A8 8 0 1 1 8.5 3.5a6 6 0 0 0 12 12Z" /></>,
   rocket: <><path d="M14 4c3-2 5-2 6-2 0 1 0 3-2 6l-5 5-4-4z" /><path d="m13 13-4 4M9 17l-3 1 1-3M11 5 7 9M4 20l4-1-3-3z" /></>,
   scale: <><path d="M12 3v18M5 6h14M4 6l-3 6h6zm16 0-3 6h6zM7 21h10" /></>,
