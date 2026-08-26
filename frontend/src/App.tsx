@@ -31,6 +31,13 @@ const IntelligencePage = lazy(() =>
   import('./pages/Intelligence').then((m) => ({ default: m.IntelligencePage })),
 );
 const ActionsPage = lazy(() => import('./pages/Actions').then((m) => ({ default: m.ActionsPage })));
+const CopilotPage = lazy(() => import('./pages/Copilot').then((m) => ({ default: m.CopilotPage })));
+const RecommendationsPage = lazy(() =>
+  import('./pages/Recommendations').then((m) => ({ default: m.RecommendationsPage })),
+);
+const ESGReportsPage = lazy(() =>
+  import('./pages/ESGReports').then((m) => ({ default: m.ESGReportsPage })),
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -59,6 +66,9 @@ export function AppRoutes() {
           <Route path="/esg/intelligence" element={<IntelligencePage />} />
           <Route path="/esg/materiality" element={<MaterialityPage />} />
           <Route path="/esg/actions" element={<ActionsPage />} />
+          <Route path="/esg/copilot" element={<CopilotPage />} />
+          <Route path="/esg/recommendations" element={<RecommendationsPage />} />
+          <Route path="/esg/reports" element={<ESGReportsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

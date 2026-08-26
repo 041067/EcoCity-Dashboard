@@ -4,6 +4,7 @@ from app.api.ai import router as ai_router
 from app.api.alerts import router as alerts_router
 from app.api.cities import router as cities_router
 from app.api.esg import router as esg_router
+from app.api.esg_ai import router as esg_ai_router
 from app.api.health import router as health_router
 from app.api.readings import router as readings_router
 
@@ -14,5 +15,6 @@ api_router.include_router(readings_router)
 api_router.include_router(ai_router)
 api_router.include_router(alerts_router)
 api_router.include_router(esg_router)
+api_router.include_router(esg_ai_router)
 
 __all__ = ["api_router"]

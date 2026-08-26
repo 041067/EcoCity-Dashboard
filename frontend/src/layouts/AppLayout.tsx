@@ -7,6 +7,9 @@ const NAV_ITEMS = [
   { to: '/esg/intelligence', label: 'Inteligência', icon: 'activity' },
   { to: '/esg/materiality', label: 'Materialidade', icon: 'target' },
   { to: '/esg/actions', label: 'Ações ESG', icon: 'check' },
+  { to: '/esg/copilot', label: 'Copilot ESG', icon: 'bot' },
+  { to: '/esg/recommendations', label: 'Recomendações', icon: 'rocket' },
+  { to: '/esg/reports', label: 'Relatórios ESG', icon: 'document' },
   { to: '/dashboard', label: 'Dashboard', icon: 'chart' },
   { to: '/mapa', label: 'Mapa', icon: 'map' },
   { to: '/relatorios', label: 'Relatórios IA', icon: 'bot' },
@@ -27,7 +30,7 @@ export function AppLayout() {
             <span>EcoCity</span>
           </NavLink>
 
-          <nav className="hidden gap-1 md:flex" aria-label="Navegação principal">
+          <nav className="hidden gap-1 xl:flex" aria-label="Navegação principal">
             {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.to}
@@ -57,7 +60,7 @@ export function AppLayout() {
           </button>
         </div>
 
-        <nav className="flex gap-1 overflow-x-auto border-t border-gray-200 px-2 py-2 md:hidden dark:border-gray-800" aria-label="Navegação móvel">
+        <nav className="flex gap-1 overflow-x-auto border-t border-gray-200 px-2 py-2 xl:hidden dark:border-gray-800" aria-label="Navegação móvel">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
@@ -78,7 +81,7 @@ export function AppLayout() {
         </nav>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-6">
+      <main className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-6">
         <Outlet />
       </main>
 

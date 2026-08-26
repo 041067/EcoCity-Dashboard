@@ -453,3 +453,89 @@ export interface AnalysisRun {
   created: Record<string, number>;
   updated: Record<string, number>;
 }
+
+export type AIDataSupport = 'low' | 'medium' | 'high';
+export type AIReportType = 'executive' | 'materiality' | 'risk' | 'progress' | 'full_esg';
+export type AIRecommendationStatus = 'pending' | 'approved' | 'dismissed' | 'converted';
+
+export interface DataSufficiency {
+  level: AIDataSupport;
+  score: number;
+  evidence_count: number;
+  coverage_percentage: number;
+  average_quality: number;
+  missing: string[];
+}
+
+export interface GroundedItem {
+  title: string;
+  detail: string;
+  topic_id?: number | null;
+  evidence_ids: string[];
+}
+
+export interface ExecutiveSummaryContent {
+  overall_situation: string;
+  critical_topics: GroundedItem[];
+  key_risks: GroundedItem[];
+  opportunities: GroundedItem[];
+  targets_requiring_attention: GroundedItem[];
+  recommended_priorities: GroundedItem[];
+  data_limitations: string[];
+}
+
+export interface ESGReportContent extends ExecutiveSummaryContent {
+  materiality_analysis: string;
+  risk_analysis: string;
+  opportunity_analysis: string;
+  target_analysis: string;
+  current_action_plans: string;
+  gaps_analysis: string;
+}
+
+export interface ESGAIReport {
+  id: number;
+  organization_id: number;
+  report_type: AIReportType;
+  reporting_year: number;
+  status: 'completed' | 'failed';
+  content: ExecutiveSummaryContent | ESGReportContent;
+  data_sufficiency: DataSufficiency;
+  model: string;
+  prompt_version: string;
+  generated_at?: string;
+  cached: boolean;
+}
+
+export interface AIRecommendation {
+  id: number;
+  organization_id: number;
+  topic_id: number;
+  topic: ESGTopic;
+  title: string;
+  rationale: string;
+  expected_impact: string;
+  time_horizon: 'immediate' | 'short_term' | 'medium_term' | 'long_term';
+  priority: PriorityLevel;
+  evidence_ids: string[];
+  status: AIRecommendationStatus;
+  action_plan_id?: number | null;
+  generated_at?: string;
+  model: string;
+  prompt_version: string;
+}
+
+export interface AIRecommendationsResult {
+  recommendations: AIRecommendation[];
+  data_sufficiency: DataSufficiency;
+  cached: boolean;
+}
+
+export interface CopilotChatResponse {
+  answer: string;
+  evidence_ids: string[];
+  limitations: string[];
+  data_sufficiency: DataSufficiency;
+  model: string;
+  prompt_version: string;
+}
