@@ -1,6 +1,8 @@
 from app.models.action_plan import ActionPlan
 from app.models.action_task import ActionTask
+from app.models.ai_recommendation import AIRecommendation
 from app.models.ai_report import AIReport
+from app.models.ai_usage import AIUsage
 from app.models.alert import Alert
 from app.models.assessment_evidence import AssessmentEvidence
 from app.models.audit_entry import AuditEntry
@@ -9,6 +11,7 @@ from app.models.esg_gap import ESGGap
 from app.models.esg_indicator import ESGIndicator
 from app.models.esg_opportunity import ESGOpportunity
 from app.models.esg_profile import ESGProfile
+from app.models.esg_report import ESGReport
 from app.models.esg_risk import ESGRisk
 from app.models.esg_target import ESGTarget
 from app.models.esg_topic import ESGTopic
@@ -29,6 +32,8 @@ __all__ = [
     "City",
     "SensorReading",
     "AIReport",
+    "AIRecommendation",
+    "AIUsage",
     "Alert",
     "ActionPlan",
     "ActionTask",
@@ -37,6 +42,7 @@ __all__ = [
     "Organization",
     "Site",
     "ESGProfile",
+    "ESGReport",
     "ESGIndicator",
     "ESGGap",
     "ESGOpportunity",

@@ -1,15 +1,19 @@
 import axios from 'axios';
 import type {
+  AIRecommendation,
+  AIRecommendationsResult,
   AIReport,
   ActionPlan,
   AnalysisRun,
   Alert,
   ChatRequest,
   ChatResponse,
+  CopilotChatResponse,
   City,
   ESGProfile,
   ESGIndicator,
   ESGGap,
+  ESGAIReport,
   ESGOpportunity,
   ESGPriority,
   ESGRisk,
@@ -321,6 +325,62 @@ export async function getPriorities(organizationId: number): Promise<ESGPriority
 
 export async function runESGAnalysis(organizationId: number): Promise<AnalysisRun> {
   const { data } = await api.post<AnalysisRun>(`/esg/organizations/${organizationId}/analysis/run`);
+  return data;
+}
+
+export async function generateExecutiveSummary(organizationId: number): Promise<ESGAIReport> {
+  const { data } = await api.post<ESGAIReport>(`/esg/ai/organizations/${organizationId}/executive-summary`);
+  return data;
+}
+
+export async function generateESGReport(
+  organizationId: number,
+  reportType: ESGAIReport['report_type'] = 'full_esg',
+): Promise<ESGAIReport> {
+  const { data } = await api.post<ESGAIReport>(`/esg/ai/organizations/${organizationId}/reports`, {
+    report_type: reportType,
+  });
+  return data;
+}
+
+export async function getESGReports(organizationId: number): Promise<ESGAIReport[]> {
+  const { data } = await api.get<ESGAIReport[]>(`/esg/ai/organizations/${organizationId}/reports`);
+  return data;
+}
+
+export async function generateAIRecommendations(organizationId: number): Promise<AIRecommendationsResult> {
+  const { data } = await api.post<AIRecommendationsResult>(
+    `/esg/ai/organizations/${organizationId}/recommendations/generate`,
+  );
+  return data;
+}
+
+export async function getAIRecommendations(organizationId: number): Promise<AIRecommendation[]> {
+  const { data } = await api.get<AIRecommendation[]>(`/esg/ai/organizations/${organizationId}/recommendations`);
+  return data;
+}
+
+export async function dismissAIRecommendation(organizationId: number, recommendationId: number): Promise<AIRecommendation> {
+  const { data } = await api.post<AIRecommendation>(
+    `/esg/ai/organizations/${organizationId}/recommendations/${recommendationId}/dismiss`,
+  );
+  return data;
+}
+
+export async function createActionFromAIRecommendation(
+  organizationId: number,
+  recommendationId: number,
+  payload: { responsible_area?: string; due_date?: string },
+): Promise<{ recommendation: AIRecommendation; action: ActionPlan }> {
+  const { data } = await api.post<{ recommendation: AIRecommendation; action: ActionPlan }>(
+    `/esg/ai/organizations/${organizationId}/recommendations/${recommendationId}/create-action`,
+    payload,
+  );
+  return data;
+}
+
+export async function sendCopilotMessage(organizationId: number, question: string): Promise<CopilotChatResponse> {
+  const { data } = await api.post<CopilotChatResponse>(`/esg/ai/organizations/${organizationId}/chat`, { question });
   return data;
 }
 

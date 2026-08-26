@@ -45,4 +45,7 @@ class Organization(Base):
     risks = relationship("ESGRisk", back_populates="organization", cascade="all, delete-orphan")
     opportunities = relationship("ESGOpportunity", back_populates="organization", cascade="all, delete-orphan")
     action_plans = relationship("ActionPlan", back_populates="organization", cascade="all, delete-orphan")
+    esg_reports = relationship("ESGReport", cascade="all, delete-orphan")
+    ai_recommendations = relationship("AIRecommendation", cascade="all, delete-orphan")
+    ai_usage = relationship("AIUsage", cascade="all, delete-orphan")
     audit_entries = relationship("AuditEntry", back_populates="organization", cascade="all, delete-orphan")

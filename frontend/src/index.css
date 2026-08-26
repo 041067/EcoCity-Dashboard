@@ -5,3 +5,10 @@
 html {
   scroll-behavior: smooth;
 }
+
+@media print {
+  body { background: white; }
+  header, footer, .print\:hidden { display: none !important; }
+  main { max-width: none !important; padding: 0 !important; }
+  .print-report { border: 0 !important; box-shadow: none !important; padding: 0 !important; }
+}

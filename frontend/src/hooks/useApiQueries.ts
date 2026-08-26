@@ -2,7 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import {
   getAlerts,
   getActionPlans,
+  getAIRecommendations,
   getCities,
+  getESGReports,
   getESGTopics,
   getGaps,
   getMaterialityExternalEvidence,
@@ -222,6 +224,24 @@ export function useOpportunities(organizationId?: number) {
 
 export function useActionPlans(organizationId?: number) {
   return useQuery({ queryKey: ['esg', 'actions', organizationId], queryFn: () => getActionPlans(organizationId!), enabled: Boolean(organizationId) });
+}
+
+export function useAIRecommendations(organizationId?: number) {
+  return useQuery({
+    queryKey: ['esg', 'ai-recommendations', organizationId],
+    queryFn: () => getAIRecommendations(organizationId!),
+    enabled: Boolean(organizationId),
+    retry: false,
+  });
+}
+
+export function useAIReports(organizationId?: number) {
+  return useQuery({
+    queryKey: ['esg', 'ai-reports', organizationId],
+    queryFn: () => getESGReports(organizationId!),
+    enabled: Boolean(organizationId),
+    retry: false,
+  });
 }
 
 export function useESGPriorities(organizationId?: number) {

@@ -6,6 +6,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///ecocity.db"
     GROQ_API_KEY: str | None = None
+    GROQ_MODEL: str = "llama-3.1-8b-instant"
+    AI_TIMEOUT_SECONDS: float = Field(default=25, ge=3, le=60)
+    AI_MAX_COMPLETION_TOKENS: int = Field(default=1400, ge=128, le=4096)
+    AI_CONTEXT_MAX_CHARS: int = Field(default=14000, ge=4000, le=30000)
+    AI_RATE_LIMIT_REQUESTS: int = Field(default=12, ge=1, le=100)
+    AI_RATE_LIMIT_WINDOW_SECONDS: int = Field(default=60, ge=10, le=3600)
     OPEN_METEO_URL: str = "https://api.open-meteo.com/v1"
     OPENAQ_API_KEY: str | None = None
     OPENAQ_URL: str = "https://api.openaq.org/v3"
